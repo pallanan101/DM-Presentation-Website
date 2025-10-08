@@ -209,24 +209,27 @@
         }
 
         // --- ROUTING LOGIC ---
-        async function routeTo(viewName, updateHistory = true) {
-            contentContainer.innerHTML = `<div class="text-center p-8"><i class="fas fa-spinner fa-spin text-4xl text-green-500"></i><p class="mt-4 text-gray-400">Loading ${viewName.replace('.html', '')}...</p></div>`;
+       // ... inside the <script> block in index.html
 
-            const rawTitle = viewName.replace('.html', '').replace(/_/g, ' ');
-            const title = rawTitle.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-            pageTitleElement.textContent = title;
-            
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('data-view') === viewName) {
-                    link.classList.add('active');
-                }
-            });
-            
+        async function routeTo(viewName, updateHistory = true) {
+            const contentContainer = document.getElementById('content-container');
+            if (!contentContainer) {
+                console.error("Content container not found.");
+                return;
+            }
+
             try {
-                const response = await fetch(viewName);
+                const response = await fetch(`${viewName}.html`);
                 if (!response.ok) {
-                    throw new Error(`Failed to load ${viewName}`);
+                    // Check if a specific file exists, otherwise try the default file name if possible
+                    if (viewName === 'content-review') {
+                        // Assuming you still have app3.3.html, if not, change this to the final file name
+                        // This block is only for initial testing if content-review.html is not created yet
+                        // If 'content-review.html' is the final name, remove this check.
+                        // For now, let's assume 'content-review.html' exists.
+                    } else {
+                         throw new Error(`Failed to load ${viewName}`);
+                    }
                 }
                 
                 const htmlContent = await response.text();
@@ -236,23 +239,31 @@
                     window.location.hash = viewName;
                 }
                 
+                // 🎯 THE FIX: Extract and re-run scripts in the loaded view content 
                 const scripts = contentContainer.querySelectorAll('script');
                 scripts.forEach(script => {
+                    // 1. Create a fresh script element
                     const newScript = document.createElement('script');
-                    newScript.textContent = script.textContent;
+                    
+                    // 2. Transfer the content
+                    // IMPORTANT: The browser must see a script created by createElement for execution
+                    newScript.textContent = script.textContent; 
+                    
+                    // 3. Append to the DOM (which executes it)
                     document.body.appendChild(newScript);
+                    
+                    // 4. Immediately clean up
                     document.body.removeChild(newScript);
                 });
 
             } catch (error) {
                 console.error("Routing error:", error);
-                contentContainer.innerHTML = `<div class="p-4 rounded-lg bg-red-600 text-white">
-                    <h2 class="text-xl font-bold">Error loading view: ${title}</h2>
-                    <p>File not found. Please ensure <strong>${viewName}</strong> exists in the correct directory.</p>
-                </div>`;
+                contentContainer.innerHTML = `<div class="container-box bg-red-800"><h2 class="text-red-200">Error loading view: ${viewName}</h2><p class="text-red-300">File not found or an error occurred.</p></div>`;
             }
         }
-    </script>
+
+   
+   </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -454,27 +454,30 @@
 
 
     // --- EVENT LISTENERS & INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // Search/Filter Listeners
-        document.getElementById('history-search-input')?.addEventListener('input', loadModerationTasks);
-        document.getElementById('history-apply-filter-button')?.addEventListener('click', loadModerationTasks);
+  // --- EVENT LISTENERS & INITIALIZATION ---
 
-        // Sortable Headers Listeners (Must be attached after they exist in the DOM)
-        document.querySelectorAll('.sortable-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const key = header.dataset.sortKey;
-                if (pendingSortKey === key) {
-                  pendingSortDirection = pendingSortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                  pendingSortKey = key;
-                  pendingSortDirection = 'asc';
-                }
-                loadModerationTasks();
-            });
-        });
-        
-        // This is the primary function to run when the router loads this page
-        setupWebSocket();
-        loadContentReviewQueues();
+// Search/Filter Listeners
+document.getElementById('history-search-input')?.addEventListener('input', loadModerationTasks);
+document.getElementById('history-apply-filter-button')?.addEventListener('click', loadModerationTasks);
+
+// Sortable Headers Listeners
+document.querySelectorAll('.sortable-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const key = header.dataset.sortKey;
+        if (pendingSortKey === key) {
+            pendingSortDirection = pendingSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            pendingSortKey = key;
+            pendingSortDirection = 'asc';
+        }
+        loadModerationTasks();
     });
+});
+
+// This is the primary function to run when the router loads this page
+setupWebSocket();
+loadContentReviewQueues();
+
+
+
 </script>
