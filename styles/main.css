@@ -1,0 +1,94 @@
+/* CSS is now only for structure and transitions, NOT for colors */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw; 
+    height: 100vh;
+    overflow: hidden; 
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+#app-layout {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+/* SIDEBAR STYLING */
+#sidebar {
+    width: 250px;
+    transition: width 0.3s ease-in-out;
+    flex-shrink: 0;
+    overflow-x: hidden;
+    /* Added for the bottom elements to align properly */
+    display: flex; 
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Collapsed State */
+#sidebar.collapsed {
+    width: 70px;
+}
+#sidebar.collapsed .sidebar-text {
+    display: none;
+}
+#sidebar.collapsed .logo-text {
+    display: none;
+}
+
+/* Navigation Links */
+.nav-link {
+    display: flex;
+    align-items: center;
+    /* Added padding/margin and rounded corners */
+    padding: 12px 0px; 
+    margin-bottom: 4px; /* Space between links */
+    border-radius: 8px; /* Rounded corners */
+    transition: color 0.2s, background-color 0.2s;
+    border-left: 3px solid transparent;
+}
+/* Override default padding inside the sidebar content div */
+#nav-links {
+    padding: 0 15px; /* Apply horizontal padding to container instead of links */
+}
+
+.nav-link i {
+    font-size: 1.25rem;
+    min-width: 40px; 
+    text-align: center;
+}
+
+/* Active Link Styling */
+.nav-link.active {
+    border-left-color: #10B981; /* Green Accent */
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10B981; /* Ensure active link is always green */
+}
+
+/* MAIN CONTENT AREA */
+#main-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+#content-wrapper {
+    flex-grow: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+#content-container {
+    min-height: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); /* Simple shadow */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.3s;
+}
+/* Notification Toast Styling */
+.notification-toast {
+    z-index: 1000;
+}
