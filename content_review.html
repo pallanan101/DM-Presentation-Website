@@ -97,7 +97,7 @@
 
         try {
             const token = localStorage.getItem('authToken');
-            const res = await fetch('http://124.107.124.196:3000/api/queues', {
+            const res = await fetch('https://www.arta-tsg.com:3001/api/queues', {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -141,7 +141,7 @@
 
         try {
             const token = localStorage.getItem('authToken');
-            const res = await fetch(`http://124.107.124.196:3000/api/queues/${currentQueueType}/tasks`, {
+            const res = await fetch(`https://www.arta-tsg.com:3001/api/queues/${currentQueueType}/tasks`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             let result = await res.json();
@@ -262,7 +262,7 @@
     async function syncLockedTasks() {
         const token = localStorage.getItem('authToken');
         try {
-            const res = await fetch('http://124.107.124.196:3000/api/task-locks', {
+            const res = await fetch('https://www.arta-tsg.com:3001/api/task-locks', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const result = await res.json();
@@ -352,7 +352,7 @@
             violation_id = 0; 
         }
 
-        const res = await fetch(`http://124.107.124.196:3000/api/tasks/${taskId}/resolve`, {
+        const res = await fetch(`https://www.arta-tsg.com:3001/api/tasks/${taskId}/resolve`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -376,7 +376,7 @@
 
     window.claimTask = async function(taskId) {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`http://124.107.124.196:3000/api/tasks/${taskId}/claim`, {
+        const res = await fetch(`https://www.arta-tsg.com:3001/api/tasks/${taskId}/claim`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
