@@ -8,7 +8,7 @@
                 <span id="date-range-display">Last 7 Days</span>
                 <i class="fas fa-chevron-down text-xs"></i>
             </button>
-            <div id="date-filter-dropdown" class="absolute right-0 mt-2 w-64 bg-white bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
+            <div id="date-filter-dropdown" class="absolute right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
                 <h4 class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">Select Date Range</h4>
                 <div class="space-y-2">
                     <label for="start-date" class="block text-sm font-medium text-gray-600">Start Date</label>
@@ -26,7 +26,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-clock text-2xl text-orange-400"></i>
                 <h3 class="text-lg font-semibold text-gray-900">Pending Moderation</h3>
@@ -34,7 +34,7 @@
             <p class="text-3xl font-bold text-gray-900">52</p>
             <p class="text-gray-500 text-sm">No change</p>
         </div>
-        <div class="bg-white bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-check-circle text-2xl text-green-400"></i>
                 <h3 class="text-lg font-semibold text-gray-900">Total Moderated</h3>
@@ -45,7 +45,7 @@
                 <span>5% since last week</span>
             </p>
         </div>
-        <div class="bg-white bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-bullseye text-2xl text-blue-400"></i>
                 <h3 class="text-lg font-semibold text-gray-900">Moderation Accuracy</h3>
@@ -56,7 +56,7 @@
                 <span>0.1% since last week</span>
             </p>
         </div>
-        <div class="bg-white bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
             <div class="flex items-center space-x-3">
                 <i class="fas fa-stopwatch text-2xl text-purple-400"></i>
                 <h3 class="text-lg font-semibold text-gray-900">Average Handling Time</h3>
@@ -70,28 +70,28 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div class="lg:col-span-2 bg-white bg-gray-200 p-6 rounded-xl shadow-lg">
+        <div class="lg:col-span-2 bg-gray-200 p-6 rounded-xl shadow-lg">
             <h3 class="text-xl font-bold mb-4 text-gray-900">Content Trends</h3>
             <div style="height: 300px;">
                 <canvas id="trends-chart"></canvas>
             </div>
         </div>
-        <div class="bg-white bg-gray-200 p-6 flex flex-col space-y-4 rounded-xl shadow-lg">
+        <div class="bg-gray-200 p-6 flex flex-col space-y-4 rounded-xl shadow-lg">
             <h3 class="text-xl font-bold mb-2 text-gray-900">Links</h3>
             <div class="space-y-3">
-                <div class="p-3 bg-white bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
                     <i class="fas fa-file-alt text-blue-500 w-5 h-5"></i>
                     <span class="font-medium text-gray-900">Playbook Rules</span>
                 </div>
-                <div class="p-3 bg-white bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
                     <i class="fas fa-bullhorn text-orange-500 w-5 h-5"></i>
                     <span class="font-medium text-gray-900">New Policy and Updates</span>
                 </div>
-                <div class="p-3 bg-white bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
                     <i class="fas fa-lightbulb text-yellow-500 w-5 h-5"></i>
                     <span class="font-medium text-gray-900">Suggestions</span>
                 </div>
-                <div class="p-3 bg-white bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-150">
                     <i class="fas fa-question-circle text-green-500 w-5 h-5"></i>
                     <span class="font-medium text-gray-900">Help</span>
                 </div>
