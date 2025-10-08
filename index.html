@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderation Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+    <style>
+        /* Base styles from app2.2.html */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2C3038;
+            color: white;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        /* Navigation specific styles */
+        .nav-link {
+            padding: 10px 15px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            border-bottom: 3px solid #007bff; /* Highlight active link */
+        }
+        .container-box {
+            background-color: #383D45;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-shell" class="min-h-screen">
+        <nav class="bg-gray-800 p-4 shadow-lg flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-xl font-bold text-white mr-6">Moderation Console</span>
+                <div id="nav-links" class="flex space-x-4">
+                    <a class="nav-link text-gray-300 hover:bg-gray-700 hover:text-white" onclick="routeTo('dashboard.html')">Dashboard</a>
+                    <a class="nav-link text-gray-300 hover:bg-gray-700 hover:text-white" onclick="routeTo('content_review.html')">Content Review</a>
+                    <a class="nav-link text-gray-300 hover:bg-gray-700 hover:text-white" onclick="routeTo('quality_audit.html')">Quality Audit</a>
+                    <a class="nav-link text-gray-300 hover:bg-gray-700 hover:text-white" onclick="routeTo('management.html')">Management</a>
+                    <a class="nav-link text-gray-300 hover:bg-gray-700 hover:text-white" onclick="routeTo('data_analytics.html')">Data Analytics</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="username-display" class="text-sm text-gray-400">Loading User...</span>
+                <button class="text-sm text-red-400 hover:text-red-300" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <main id="content-container" class="p-6">
+            <div class="text-center mt-20">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                <p class="mt-4 text-gray-400">Loading application...</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://124.107.124.196:3000/api';
+        const contentContainer = document.getElementById('content-container');
+        const usernameDisplay = document.getElementById('username-display');
+        const navLinks = document.querySelectorAll('#nav-links a');
+
+        // --- AUTH GUARD & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                // Not logged in: Redirect to login page
+                console.log('No token found. Redirecting to login.');
+                window.location.href = 'login_page.html';
+                return;
+            }
+
+            // Logged in: Verify token and start routing
+            fetchMeAndRoute();
+        });
+
+        // --- AUTH/USER LOGIC ---
+        async function fetchMeAndRoute() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const response = await fetch(`${API_BASE_URL}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    usernameDisplay.textContent = data.user;
+                    
+                    // Determine initial route: Check URL hash, default to dashboard
+                    const initialRoute = window.location.hash.substring(1) || 'dashboard.html';
+                    routeTo(initialRoute, false); 
+                } else {
+                    // Token invalid or expired (server returned 401/403)
+                    console.error('Token verification failed. Redirecting to login.');
+                    logout(true); 
+                }
+            } catch (error) {
+                console.error('Failed to verify token:', error);
+                logout(true); // Network error
+            }
+        }
+
+        function logout(force = false) {
+            localStorage.removeItem('authToken');
+            // Use replace to prevent the user from hitting the back button to get to a protected page
+            window.location.replace('login_page.html');
+        }
+
+        // --- ROUTING LOGIC ---
+        async function routeTo(viewName, updateHistory = true) {
+            contentContainer.innerHTML = `<div class="text-center mt-20"><i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i><p class="mt-4 text-gray-400">Loading ${viewName.replace('.html', '')}...</p></div>`;
+
+            // Update active state in navigation
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(viewName)) {
+                    link.classList.add('active');
+                }
+            });
+            
+            try {
+                const response = await fetch(viewName);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${viewName}`);
+                }
+                
+                const htmlContent = await response.text();
+                contentContainer.innerHTML = htmlContent;
+                
+                if (updateHistory) {
+                    window.location.hash = viewName;
+                }
+                
+                // IMPORTANT: Re-run scripts in the loaded view content if they exist
+                const scripts = contentContainer.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    document.body.appendChild(newScript);
+                    document.body.removeChild(newScript);
+                });
+
+            } catch (error) {
+                console.error("Routing error:", error);
+                contentContainer.innerHTML = `<div class="container-box bg-red-800"><h2 class="text-red-200">Error loading view: ${viewName}</h2><p class="text-red-300">File not found or an error occurred.</p></div>`;
+            }
+        }
+        
+        // Handle browser back/forward on hash changes
+        window.addEventListener('hashchange', () => {
+            const viewName = window.location.hash.substring(1);
+            if (viewName) {
+                routeTo(viewName, false);
+            }
+        });
+    </script>
+</body>
+</html>
