@@ -102,68 +102,102 @@
 
 
 <script>
-    // --- DOM element retrieval is safe here since the script is executed after the elements are defined in the HTML
+    // --- DOM ELEMENTS ---
     const dateFilterButton = document.getElementById('date-filter-button');
     const dateFilterDropdown = document.getElementById('date-filter-dropdown');
     const applyFilterButton = document.getElementById('apply-filter-button');
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
     const dateRangeDisplay = document.getElementById('date-range-display');
+    let trendsChart;
 
-    // --- Utility Function to swap classes on loaded content ---
+    // --- THEME APPLICATION LOGIC FOR LOADED CONTENT ---
     function updateContentTheme() {
         const isDark = localStorage.getItem('theme') === 'dark';
-        const isLight = !isDark;
-        
-        // Target: All cards/containers (bg-white <-> bg-gray-900)
-        // Note: The HTML fragment uses bg-white/bg-gray-900 as placehodlers which are set by the router logic in index.html
-        
-        const mainElements = document.querySelectorAll(
-            '.bg-white.bg-gray-900, .bg-gray-600' // Target card backgrounds and date inputs
+
+        // 1. Swap Main Containers (Stat Cards, Chart, Links, Dropdown)
+        // Light: bg-gray-200, Dark: bg-gray-700 (Matches index.html's secondary background swap)
+        const mainContainers = document.querySelectorAll(
+            '.bg-gray-200.rounded-xl, #date-filter-dropdown, .hover\\:bg-gray-400'
         );
+        mainContainers.forEach(el => {
+            // Background Swap
+            el.classList.remove(isDark ? 'bg-gray-200' : 'bg-gray-700');
+            el.classList.add(isDark ? 'bg-gray-700' : 'bg-gray-200');
 
-        mainElements.forEach(el => {
-            // Apply background color swap (bg-white <-> bg-gray-900 or similar dark card color)
-            if (isLight) {
-                el.classList.remove('bg-gray-900', 'bg-gray-600');
-                el.classList.add('bg-white');
-            } else {
-                // Determine which dark class to apply (bg-gray-900 for cards, bg-gray-600 for inputs)
-                if (el.id === 'start-date' || el.id === 'end-date' || el.id === 'date-filter-dropdown' || el.id === 'date-filter-button') {
-                     el.classList.remove('bg-white', 'bg-gray-100');
-                     el.classList.add('bg-gray-600');
-                } else {
-                    el.classList.remove('bg-white');
-                    el.classList.add('bg-gray-900');
-                }
-            }
-            
-            // Apply text color swap (text-gray-900 <-> text-gray-50/200)
-            if (isLight) {
-                el.classList.remove('text-gray-50', 'text-gray-200');
-                el.classList.add('text-gray-900');
-            } else {
-                 el.classList.remove('text-gray-900');
-                 el.classList.add('text-gray-50');
+            // Hover Swap (for date button and links)
+            if (el.classList.contains('hover:bg-gray-400') || el.classList.contains('hover:bg-gray-600')) {
+                 el.classList.remove(isDark ? 'hover:bg-gray-400' : 'hover:bg-gray-600');
+                 el.classList.add(isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-400');
             }
         });
 
-        // Specific adjustments for text elements inside cards that might not inherit
-        document.querySelectorAll('h3, p, span').forEach(el => {
-            if (el.closest('.bg-white, .bg-gray-900') && !el.classList.contains('text-green-500') && !el.classList.contains('text-red-500') && !el.classList.contains('text-orange-400') && !el.classList.contains('text-blue-400') && !el.classList.contains('text-purple-400')) {
-                if (isLight) {
-                    el.classList.remove('text-gray-200');
-                    el.classList.add('text-gray-900');
+
+        // 2. Swap Input Fields (Start/End Date)
+        // Light: bg-gray-100, Dark: bg-gray-600 (Matches index.html's primary body background swap)
+        document.querySelectorAll('#start-date, #end-date').forEach(el => {
+            if (isDark) {
+                el.classList.remove('bg-gray-100', 'border-gray-300');
+                el.classList.add('bg-gray-600', 'border-gray-500'); 
+            } else {
+                el.classList.remove('bg-gray-600', 'border-gray-500');
+                el.classList.add('bg-gray-100', 'border-gray-300');
+            }
+        });
+
+        // 3. Swap Text Colors (Targeting primary and secondary text)
+        document.querySelectorAll('.text-gray-900, .text-gray-500, .text-gray-600, .text-gray-100, .text-gray-400').forEach(el => {
+            // Preserve colored status text (green, red, orange, blue, purple)
+            if (!el.classList.contains('text-green-500') && !el.classList.contains('text-red-500') && !el.classList.contains('text-orange-400') && !el.classList.contains('text-blue-400') && !el.classList.contains('text-purple-400')) {
+                
+                if (isDark) {
+                    // Primary text (900 -> 100)
+                    if (el.classList.contains('text-gray-900')) {
+                        el.classList.remove('text-gray-900');
+                        el.classList.add('text-gray-100');
+                    } 
+                    // Secondary text (500/600 -> 400)
+                    else if (el.classList.contains('text-gray-500') || el.classList.contains('text-gray-600')) {
+                        el.classList.remove('text-gray-500', 'text-gray-600');
+                        el.classList.add('text-gray-400');
+                    }
                 } else {
-                    el.classList.remove('text-gray-900');
-                    el.classList.add('text-gray-200');
+                    // Dark to Light Revert
+                    if (el.classList.contains('text-gray-100')) {
+                        el.classList.remove('text-gray-100');
+                        el.classList.add('text-gray-900');
+                    } else if (el.classList.contains('text-gray-400')) {
+                         // Decide if it was secondary card text (500) or date label (600)
+                        el.classList.remove('text-gray-400');
+                        // We must make a best guess, let's use 500 as the default secondary text color
+                        el.classList.add('text-gray-500'); 
+                    }
                 }
             }
         });
-        
     }
+
+    // --- DATE LOGIC ---
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+
+    function updateDateInputs(start, end) {
+        if (startDateInput && endDateInput && dateRangeDisplay) {
+            startDateInput.value = formatDate(start);
+            endDateInput.value = formatDate(end);
+            dateRangeDisplay.textContent = `${formatDate(start)} to ${formatDate(end)}`;
+        }
+    }
+
+    function initializeDateRange() {
+        const today = new Date();
+        const lastWeek = new Date();
+        lastWeek.setDate(today.getDate() - 7);
+        updateDateInputs(lastWeek, today);
+    }
+    initializeDateRange();
     
-    // --- Date Filter Dropdown Logic ---
     if (dateFilterButton) {
         dateFilterButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -178,32 +212,7 @@
         }
     });
 
-    // --- Date Utility Functions ---
-
-    function formatDate(date) {
-        return date.toISOString().split('T')[0];
-    }
-
-    function updateDateInputs(start, end) {
-        if (startDateInput && endDateInput && dateRangeDisplay) {
-            startDateInput.value = formatDate(start);
-            endDateInput.value = formatDate(end);
-            dateRangeDisplay.textContent = `${formatDate(start)} to ${formatDate(end)}`;
-        }
-    }
-
-    // Set initial date range (Last 7 Days)
-    function initializeDateRange() {
-        const today = new Date();
-        const lastWeek = new Date();
-        lastWeek.setDate(today.getDate() - 7);
-        updateDateInputs(lastWeek, today);
-    }
-    initializeDateRange();
-
-    // --- Chart.js Content Trends Chart ---
-    let trendsChart;
-
+    // --- CHART LOGIC ---
     function renderTrendsChart() {
         const ctx = document.getElementById('trends-chart').getContext('2d');
         const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -213,7 +222,7 @@
                 {
                     label: 'Moderated Content',
                     data: [350, 410, 390, 450, 420, 500, 480],
-                    borderColor: 'rgba(59, 130, 246, 1)', // Blue-500
+                    borderColor: 'rgba(59, 130, 246, 1)',
                     backgroundColor: 'rgba(59, 130, 246, 0.2)',
                     tension: 0.3,
                     fill: true
@@ -221,7 +230,7 @@
                 {
                     label: 'Incoming Volume',
                     data: [360, 400, 420, 440, 430, 510, 490],
-                    borderColor: 'rgba(16, 185, 129, 1)', // Green-500
+                    borderColor: 'rgba(16, 185, 129, 1)',
                     backgroundColor: 'rgba(16, 185, 129, 0.2)',
                     tension: 0.3,
                     fill: true
@@ -229,7 +238,7 @@
             ]
         };
 
-        // Determine theme color for chart elements
+        // Get theme colors for the chart elements
         const themeColor = localStorage.getItem('theme') === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
         const gridColor = localStorage.getItem('theme') === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
@@ -240,34 +249,18 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: themeColor,
-                        }
-                    },
-                    title: {
-                        display: false
-                    }
+                    legend: { labels: { color: themeColor } },
+                    title: { display: false }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: {
-                            color: gridColor,
-                            borderColor: themeColor
-                        },
-                        ticks: {
-                            color: themeColor
-                        }
+                        grid: { color: gridColor, borderColor: themeColor },
+                        ticks: { color: themeColor }
                     },
                     x: {
-                        grid: {
-                            color: gridColor,
-                            borderColor: themeColor
-                        },
-                        ticks: {
-                            color: themeColor
-                        }
+                        grid: { color: gridColor, borderColor: themeColor },
+                        ticks: { color: themeColor }
                     }
                 }
             }
@@ -279,38 +272,39 @@
         trendsChart = new Chart(ctx, config);
     }
 
-    // Function to run when filter is applied or view is loaded
+    // --- MAIN UPDATE FUNCTION ---
     function updateDashboardData() {
-        // Apply the stored theme colors to the loaded HTML content
+        // 1. Apply the stored theme colors to the loaded HTML content
         updateContentTheme(); 
         
-        // Re-render chart to pick up potential theme changes or new data
+        // 2. Re-render chart (which uses the current theme colors)
         renderTrendsChart();
 
-        // Close dropdown
+        // 3. Close date dropdown
         if (dateFilterDropdown) {
              dateFilterDropdown.classList.add('hidden');
         }
     }
 
-    // Event Listeners
+    // --- EVENT LISTENERS ---
     if (applyFilterButton) {
         applyFilterButton.addEventListener('click', updateDashboardData);
     }
 
-    // Global listener to re-render chart on theme change
-    // This assumes the theme toggle in index.html updates the localStorage item 'theme'
-    const observer = new MutationObserver(function(mutations) {
+    // This observer reacts to the main app's body class change (triggered by theme toggle) 
+    // to keep the dashboard content in sync.
+    const themeChangeObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.attributeName === 'class' && mutation.target === document.body) {
-                // Body class changed, run theme updates on the content
                 updateDashboardData();
             }
         });
     });
-    observer.observe(document.body, { attributes: true });
+    
+    // Start observing the body tag for theme class changes
+    themeChangeObserver.observe(document.body, { attributes: true });
 
 
-    // Initialize the chart and theme on load
+    // Initialize the chart and theme on load (the router runs this script)
     updateDashboardData();
 </script>
