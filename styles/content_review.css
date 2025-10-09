@@ -1,0 +1,53 @@
+.list-container {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            display: block;
+
+        }
+          .pending-list-row {
+            /* Content ID | Content Type | Content | Entry Time | Status | Source */
+            
+            display: grid;
+            padding: 0.75rem 1rem;
+            align-items: center;
+            color: #D1D5DB;
+            transition: background-color 0.15s;
+            gap: 1rem;
+            cursor: pointer;
+        }
+        .pending-list-row:last-child {
+            border-bottom: none;
+        }
+        body.light .pending-list-row {
+            border-bottom: 1px solid #E5E7EB;
+            color: #4B5563;
+        }
+        body.light .pending-list-row:hover {
+            background-color: #F9FAFB;
+        }
+        
+
+        .dark-card {
+            
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+
+
+.full-width-flex {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+        .pending-list-row {
+  display: grid;
+  grid-template-columns:150px 350px 100px 120px 80px 150px 150px 300px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #2d2d2d;
+  align-items: center;
+}

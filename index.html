@@ -23,11 +23,11 @@
             </div>
             
             <div id="nav-links">
-                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('dashboard.html', true)" data-view="dashboard.html"><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
-                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('content_review.html', true)" data-view="content_review.html"><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
-                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('management.html', true)" data-view="management.html"><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
-                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('data_analytics.html', true)" data-view="data_analytics.html"><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
-                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('quality_audit.html', true)" data-view="quality_audit.html"><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
+                <a class="nav-link text-gray-600 active hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" href="content_review.html" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" href="management.html" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"  ><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
+                <a class="nav-link text-gray-600 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html" ><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
             </div>
             
            <div class="mt-auto">
@@ -85,342 +85,117 @@
 
             <div id="content-wrapper" class="">
                 <main id="content-container" class="bg-gray-100">
-                    <div class="text-center p-8">
-                        <i class="fas fa-spinner fa-spin text-4xl text-green-500"></i>
-                        <h2 class="text-3xl font-light text-gray-400 mt-4">Loading Application...</h2>
-                    </div>
-                </main>
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+<div class="space-y-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 logo-text">Management Dashboard</h1>
+        
+        <div class="relative">
+            <button id="date-filter-button" class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="date-range-display">Last 7 Days</span>
+                <i class="fas fa-chevron-down text-xs"></i>
+            </button>
+            <div id="date-filter-dropdown" class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
+                <h4 class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">Select Date Range</h4>
+                <div class="space-y-2">
+                    <label for="start-date" class="block text-sm font-medium text-gray-600">Start Date</label>
+                    <input type="date" id="start-date" value="2025-09-19" class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="space-y-2">
+                    <label for="end-date" class="block text-sm font-medium text-gray-600">End Date</label>
+                    <input type="date" id="end-date" value="2025-09-26" class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button id="apply-filter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+                    Apply Filter
+                </button>
             </div>
         </div>
     </div>
 
- <script>
-     // --- 1. GLOBAL STATE AND CONFIGURATION ---
-    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
-    let notificationCount = 0;
-    let notifications = []; 
-    
-    // 🎯 NEW FIX: Array to track and clean up scripts appended from the view file
-    let injectedViewScripts = []; 
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-clock text-2xl text-orange-400"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Pending Moderation</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">52</p>
+            <p class="text-gray-500 text-sm">No change</p>
+        </div>
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Total Moderated</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">12,895</p>
+            <p class="text-green-500 text-sm flex items-center space-x-1">
+                <i class="fas fa-arrow-up"></i>
+                <span>5% since last week</span>
+            </p>
+        </div>
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-bullseye text-2xl text-blue-400"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Moderation Accuracy</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">98.7%</p>
+            <p class="text-red-500 text-sm flex items-center space-x-1">
+                <i class="fas fa-arrow-down"></i>
+                <span>0.1% since last week</span>
+            </p>
+        </div>
+        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-stopwatch text-2xl text-purple-400"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Average Handling Time</h3>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">45s</p>
+            <p class="text-green-500 text-sm flex items-center space-x-1">
+                <i class="fas fa-arrow-down"></i>
+                <span>2s improvement</span>
+            </p>
+        </div>
+    </div>
 
-    // Global container for resources that need manual cleanup on route change
-    const viewResources = {
-        observer: null,
-        websocket: null,
-        cleanup: () => {} // Function defined by the current view
-    };
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div class="lg:col-span-2 bg-gray-200 p-6 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4 text-gray-900">Content Trends</h3>
+            <div style="height: 300px;">
+                <canvas id="trends-chart"></canvas>
+            </div>
+        </div>
+        <div class="bg-gray-200 p-6 flex flex-col space-y-4 rounded-xl shadow-lg">
+            <h3 class="text-xl font-bold mb-2 text-gray-900">Links</h3>
+            <div class="space-y-3">
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                    <i class="fas fa-file-alt text-blue-500 w-5 h-5"></i>
+                    <span class="font-medium text-gray-900">Playbook Rules</span>
+                </div>
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                    <i class="fas fa-bullhorn text-orange-500 w-5 h-5"></i>
+                    <span class="font-medium text-gray-900">New Policy and Updates</span>
+                </div>
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                    <i class="fas fa-lightbulb text-yellow-500 w-5 h-5"></i>
+                    <span class="font-medium text-gray-900">Suggestions</span>
+                </div>
+                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                    <i class="fas fa-question-circle text-green-500 w-5 h-5"></i>
+                    <span class="font-medium text-gray-900">Help</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    // --- 2. DOM ELEMENT REFERENCES (All available here) ---
-    const sidebar = document.getElementById('sidebar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const usernameDisplay = document.getElementById('username-display');
-    const notificationButton = document.getElementById('notification-button');
-    const notificationBadge = document.getElementById('notification-badge');
-    const notificationDropdown = document.getElementById('notification-dropdown');
-    const notificationList = document.getElementById('notification-list');
-    const contentContainer = document.getElementById('content-container');
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-    // --- 3. UI/THEME/NOTIFICATION UTILITIES (Your existing functions) ---
-    
-    function swapClasses(selector, lightClass, darkClass, isLight) {
-        document.querySelectorAll(selector).forEach(el => {
-            if (isLight) {
-                el.classList.remove(darkClass);
-                el.classList.add(lightClass);
-            } else {
-                el.classList.remove(lightClass);
-                el.classList.add(darkClass);
-            }
-        });
-    }
-
-    function updateThemeClasses(isDark) {
-        const isLight = !isDark;
-        // Your existing theme swapping logic
-        swapClasses('.text-gray-900, .text-gray-50', 'text-gray-900', 'text-gray-50', isLight);
-        swapClasses('.bg-gray-100, .bg-gray-600', 'bg-gray-100', 'bg-gray-600', isLight);
-        swapClasses('.bg-gray-200, .bg-gray-700', 'bg-gray-200', 'bg-gray-700', isLight);
-        swapClasses('.bg-white, .bg-gray-800', 'bg-white', 'bg-gray-800', isLight);
-        
-        const newTheme = isDark ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
-        if (themeToggle) {
-            themeToggle.querySelector('i').className = isDark ? 'fas fa-sun text-lg' : 'fas fa-moon text-lg';
-        }
-    }
-
-    function initializeTheme() {
-        // NOTE: Changed default to 'dark' based on your previous body class logic, 
-        // but using 'light' from the body tag in your provided HTML. Using 'dark' 
-        // as you previously stated it was the default.
-        const savedTheme = localStorage.getItem('theme') || 'dark'; 
-        const isDark = savedTheme === 'dark';
-        updateThemeClasses(isDark);
-    }
-
-    function toggleTheme() {
-        const currentTheme = localStorage.getItem('theme');
-        const newThemeIsDark = currentTheme === 'light';
-        updateThemeClasses(newThemeIsDark);
-    }
-    
-    function initializeSidebar() {
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (sidebar && isCollapsed) {
-            sidebar.classList.add('collapsed');
-        }
-    }
-
-    function toggleSidebar() {
-        const isCollapsed = sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sidebarCollapsed', isCollapsed);
-    }
-
-    // ... (Your existing notification utilities: updateBadge, getNotificationIcon, 
-    //      renderNotificationList, handleNotificationReceived, startSimulation)
-     // DOM element retrieval is safe here since the script is defined after the elements
-        // --- NOTIFICATION UTILITIES ---
-
-        function updateBadge(count) {
-            notificationCount = count;
-            if (notificationCount > 0) {
-                notificationBadge.textContent = notificationCount;
-                notificationBadge.classList.remove('hidden');
-            } else {
-                notificationBadge.textContent = '';
-                notificationBadge.classList.add('hidden');
-            }
-        }
-        
-        function getNotificationIcon(type) {
-            switch (type) {
-                case 'error': return { icon: 'fa-times-circle', color: 'text-red-500' };
-                case 'warning': return { icon: 'fa-exclamation-triangle', color: 'text-yellow-500' };
-                case 'info':
-                default: return { icon: 'fa-info-circle', color: 'text-blue-500' };
-            }
-        }
-
-        function renderNotificationList() {
-            // Apply theme colors to dropdown itself
-            const isDark = localStorage.getItem('theme') === 'dark';
-            
-            if (isDark) {
-                notificationDropdown.classList.remove('bg-white', 'border-gray-200');
-                notificationDropdown.classList.add('bg-gray-900', 'border-gray-700');
-            } else {
-                notificationDropdown.classList.remove('bg-gray-900', 'border-gray-700');
-                notificationDropdown.classList.add('bg-white', 'border-gray-200');
-            }
-            
-            // Filter to show only the last 10 (or a manageable number)
-            const recentNotifications = notifications.slice(-10).reverse(); 
-            
-            notificationList.innerHTML = ''; // Clear previous list
-
-            if (recentNotifications.length === 0) {
-                notificationList.innerHTML = '<li class="p-4 text-gray-500 text-sm italic text-center">No recent notifications.</li>';
-                return;
-            }
-
-            recentNotifications.forEach((n, index) => {
-                const isUnread = n.unread;
-                const { icon, color } = getNotificationIcon(n.type);
-                
-                const item = document.createElement('li');
-                // Apply conditional dark mode classes on the list item
-                const unreadBg = isDark ? 'bg-gray-800' : 'bg-green-50/50';
-                const defaultBg = isDark ? 'bg-gray-900' : 'bg-white';
-                const hoverBg = isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
-                const itemTextColor = isDark ? 'text-gray-200' : 'text-gray-800';
-                
-                item.className = `p-3 flex items-start space-x-3 cursor-pointer border-b last:border-b-0 ${isUnread ? unreadBg : defaultBg} ${hoverBg} transition duration-100`;
-                
-                item.innerHTML = `
-                    <i class="fas ${icon} ${color} mt-0.5"></i>
-                    <div class="flex-grow">
-                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.message}</p>
-                        <p class="text-gray-400 text-xs mt-1">${n.timestamp.toLocaleTimeString()}</p>
-                    </div>
-                `;
-                
-                item.addEventListener('click', (e) => {
-                    // Prevent the click from bubbling up to the document click handler that closes the dropdown
-                    e.stopPropagation(); 
-                    if (n.unread) {
-                        n.unread = false;
-                        updateBadge(notificationCount > 0 ? notificationCount - 1 : 0);
-                        renderNotificationList();
-                    }
-                });
-
-                notificationList.appendChild(item);
-            });
-        }
-
-        function handleNotificationReceived(message, type) {
-            const newNotification = { 
-                message, 
-                timestamp: new Date(), 
-                type, 
-                unread: true 
-            };
-            
-            notifications.push(newNotification);
-            updateBadge(notificationCount + 1);
-        }
-
-        // --- SIMULATED REAL-TIME FEED ---
-        const sampleNotifications = [
-            { msg: "Task A-501 was automatically unlocked.", type: "warning" },
-            { msg: "New high-priority task assigned: B-993.", type: "info" },
-            { msg: "System maintenance starting in 5 min.", type: "info" },
-            { msg: "Critical queue depth reached.", type: "error" },
-            { msg: "User JohnDoe has locked Task C-202.", type: "info" }
-        ];
-        
-        let simIndex = 0;
-        function startSimulation() {
-            // Trigger 3 initial notifications on load
-            for (let i = 0; i < 3; i++) {
-                 handleNotificationReceived(sampleNotifications[simIndex % sampleNotifications.length].msg, sampleNotifications[simIndex % sampleNotifications.length].type);
-                 simIndex++;
-            }
-            
-            // Continue simulation every 15 seconds
-            setInterval(() => {
-                const alert = sampleNotifications[simIndex % sampleNotifications.length];
-                handleNotificationReceived(alert.msg, alert.type);
-                simIndex++;
-            }, 15000); 
-        }
-
-    // --- 4. AUTH & USER LOGIC ---
-
-    async function fetchMeAndRoute() {
-        const token = localStorage.getItem('authToken');
-        // ... (Your existing fetchMeAndRoute logic)
-        // ...
-        // On success:
-        const initialRoute = window.location.hash.substring(1).replace('.html', '') || 'dashboard';
-        routeTo(initialRoute, false); 
-        // ...
-    }
-
-       function logout() {
-        localStorage.removeItem('authToken'); 
-        viewResources.cleanup(); 
-        if (viewResources.websocket) {
-            viewResources.websocket.close();
-        }
-        window.location.replace('login_page.html');
-    }
-    
-    // --- 5. ROUTING LOGIC (The complete, final fix) ---
-    async function routeTo(viewName, updateHistory = true) {
-        if (!contentContainer) {
-            console.error("Content container not found.");
-            return;
-        }
-        
-        // 🎯 FIX A: RUN ALL PREVIOUS VIEW CLEANUP LOGIC
-        // 1. Run view-specific cleanup (e.g., Chart.js destroy, WebSocket close)
-        viewResources.cleanup(); 
-        // 2. Disconnect and nullify the observer (e.g., from dashboard.html)
-        if (viewResources.observer) {
-            viewResources.observer.disconnect();
-            viewResources.observer = null;
-        }
-        // 3. Close and nullify the websocket (e.g., from content_review.html)
-        if (viewResources.websocket && viewResources.websocket.readyState === WebSocket.OPEN) {
-            viewResources.websocket.close();
-            viewResources.websocket = null;
-        }
-        viewResources.cleanup = () => {}; // Reset for the next view
-
-        // 🎯 FIX B: REMOVE SCRIPTS FROM PREVIOUS VIEW TO AVOID CONFLICTS
-        injectedViewScripts.forEach(script => script.remove());
-        injectedViewScripts = []; // Reset the tracker for the new view
-
-        const finalViewName = viewName.replace('.html', '');
-
-        try {
-            const response = await fetch(`${finalViewName}.html`);
-            if (!response.ok) {
-                throw new Error(`Failed to load ${finalViewName}.html`);
-            }
-            
-            const htmlContent = await response.text();
-            contentContainer.innerHTML = htmlContent;
-            
-            if (updateHistory) {
-                window.location.hash = finalViewName;
-            }
-            
-            // 🎯 FIX C: Re-run scripts and TRACK THEM
-            const scripts = contentContainer.querySelectorAll('script');
-            scripts.forEach(script => {
-                const newScript = document.createElement('script');
-                newScript.textContent = script.textContent;
-                // Append to document.head for execution
-                document.head.appendChild(newScript);
-                
-                // Track the new script so we can remove it later
-                injectedViewScripts.push(newScript); 
-            });
-
-        } catch (error) {
-            console.error("Routing error:", error);
-            contentContainer.innerHTML = `<div class="p-4 rounded-lg bg-red-800 text-white">
-                <h2 class="text-xl font-bold">Error loading view: ${finalViewName}</h2>
-                <p>File not found or an error occurred. Check console for details.</p>
-            </div>`;
-        }
-        
-        // ... (Your existing sidebar active state update logic)
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-            if (link.dataset.view) { 
-                if (link.dataset.view.replace('.html', '') === finalViewName) {
-                    link.classList.add('active');
-                }
-            }
-        });
-        
-        // ... (Your existing page title update logic)
-        const titleText = finalViewName.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        document.getElementById('page-title').textContent = titleText;
-    }
-
-
-    // --- 6. INITIALIZATION BLOCK ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // ... (Your initialization and listener setup)
-        initializeTheme();
-        initializeSidebar();
-        
-        themeToggle.addEventListener('click', toggleTheme);
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        document.getElementById('sidebar-logout-btn').addEventListener('click', logout);
-        
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            window.location.replace('login_page.html');
-            return;
-        }
-        
-        fetchMeAndRoute(); 
-        
-        window.addEventListener('hashchange', () => {
-            const viewName = window.location.hash.substring(1);
-            if (viewName) {
-                routeTo(viewName, false);
-            }
-        });
-
-        startSimulation(); // Call this here if needed
-    });
-</script>
+                </main>
+            </div>
+        </div>
+    </div>
+ <script src="scripts/dashboard.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
 </html>
