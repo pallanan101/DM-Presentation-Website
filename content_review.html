@@ -437,7 +437,8 @@
         // Only set up socket if token exists (i.e., user is logged in)
         if (!token) return; 
         
-        socket = new WebSocket(`ws://124.107.124.196:3000/?token=${token}`);
+        socket = new WebSocket(`ws://www.arta-tsg.com:3001/?token=${token}`);
+        viewResources.websocket = socket; 
 
         socket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
@@ -473,6 +474,22 @@ document.querySelectorAll('.sortable-header').forEach(header => {
         loadModerationTasks();
     });
 });
+
+
+
+viewResources.cleanup = () => {
+    // Explicitly close the WebSocket connection on exit
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+    }
+    // Remove the explicit WebSocket reference from the global tracker
+    viewResources.websocket = null;
+};
+
+
+
+
+
 
 // This is the primary function to run when the router loads this page
 setupWebSocket();

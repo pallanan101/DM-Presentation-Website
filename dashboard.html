@@ -303,8 +303,14 @@
     
     // Start observing the body tag for theme class changes
     themeChangeObserver.observe(document.body, { attributes: true });
+viewResources.observer = themeChangeObserver;
 
-
+// 2. Define the cleanup function for this specific view
+viewResources.cleanup = () => {
+    if (viewResources.observer) {
+        viewResources.observer.disconnect();
+    }
+};
     // Initialize the chart and theme on load (the router runs this script)
     updateDashboardData();
 </script>
