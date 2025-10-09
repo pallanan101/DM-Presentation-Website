@@ -94,9 +94,20 @@
         </div>
     </div>
 
-   <script>
-    // --- 1. GLOBAL UI ELEMENT REFERENCES ---
-    // These elements are persistent and available immediately.
+ <script>
+    // --- 1. GLOBAL STATE AND CONFIGURATION ---
+    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
+    let notificationCount = 0;
+    let notifications = []; 
+
+    // 🎯 FIX 1: Global Resource Manager (Needed for WebSocket/Observer Cleanup)
+    const viewResources = {
+        observer: null,
+        websocket: null,
+        cleanup: () => {} // Function defined by the current view
+    };
+
+    // --- 2. DOM ELEMENT REFERENCES ---
     const sidebar = document.getElementById('sidebar');
     const themeToggle = document.getElementById('theme-toggle');
     const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -106,61 +117,98 @@
     const notificationDropdown = document.getElementById('notification-dropdown');
     const notificationList = document.getElementById('notification-list');
     const contentContainer = document.getElementById('content-container');
-    
-    // --- 2. GLOBAL STATE AND CONFIGURATION ---
-    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
-    let notificationCount = 0;
-    let notifications = []; // Stores the history of all received notifications
 
-    // Global container for resources that need manual cleanup on route change
-    const viewResources = {
-        observer: null,
-        websocket: null,
-        cleanup: () => {} // Default empty cleanup function defined by the current view
-    };
-
-    // --- 3. UI/THEME/NOTIFICATION UTILITIES (Keep your existing logic here) ---
-    // ... (Your swapClasses, updateThemeClasses, initializeTheme, toggleTheme, 
-    //      initializeSidebar, toggleSidebar, updateBadge, getNotificationIcon, 
-    //      renderNotificationList, handleNotificationReceived, startSimulation functions)
+    // --- 3. UI/THEME/NOTIFICATION UTILITIES (Your existing functions) ---
     
-    // NOTE: I am omitting the bodies of your existing utility functions for brevity, 
-    // but they should be included here.
-    
-    // --- SIMULATED REAL-TIME FEED (Example) ---
-    const sampleNotifications = [
-        { msg: "Task A-501 was automatically unlocked.", type: "warning" },
-        // ... (rest of your sampleNotifications)
-    ];
-    let simIndex = 0;
-    function startSimulation() {
-         // ... (your existing simulation logic)
+    function swapClasses(selector, lightClass, darkClass, isLight) {
+        document.querySelectorAll(selector).forEach(el => {
+            if (isLight) {
+                el.classList.remove(darkClass);
+                el.classList.add(lightClass);
+            } else {
+                el.classList.remove(lightClass);
+                el.classList.add(darkClass);
+            }
+        });
     }
 
+    function updateThemeClasses(isDark) {
+        const isLight = !isDark;
+        // Your existing theme swapping logic
+        swapClasses('.text-gray-900, .text-gray-50', 'text-gray-900', 'text-gray-50', isLight);
+        swapClasses('.bg-gray-100, .bg-gray-600', 'bg-gray-100', 'bg-gray-600', isLight);
+        swapClasses('.bg-gray-200, .bg-gray-700', 'bg-gray-200', 'bg-gray-700', isLight);
+        swapClasses('.bg-white, .bg-gray-800', 'bg-white', 'bg-gray-800', isLight);
+        
+        const newTheme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        if (themeToggle) {
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-sun text-lg' : 'fas fa-moon text-lg';
+        }
+    }
+
+    function initializeTheme() {
+        // NOTE: Changed default to 'dark' based on your previous body class logic, 
+        // but using 'light' from the body tag in your provided HTML. Using 'dark' 
+        // as you previously stated it was the default.
+        const savedTheme = localStorage.getItem('theme') || 'dark'; 
+        const isDark = savedTheme === 'dark';
+        updateThemeClasses(isDark);
+    }
+
+    function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme');
+        const newThemeIsDark = currentTheme === 'light';
+        updateThemeClasses(newThemeIsDark);
+    }
+    
+    function initializeSidebar() {
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebar && isCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+    }
+
+    function toggleSidebar() {
+        const isCollapsed = sidebar.classList.toggle('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    // ... (Your existing notification utilities: updateBadge, getNotificationIcon, 
+    //      renderNotificationList, handleNotificationReceived, startSimulation)
+    
     // --- 4. AUTH & USER LOGIC ---
+
     async function fetchMeAndRoute() {
+        const token = localStorage.getItem('authToken');
         // ... (Your existing fetchMeAndRoute logic)
-        // ... (Make sure to call routeTo(initialRoute, false); on success)
+        // ...
+        // On success:
+        const initialRoute = window.location.hash.substring(1).replace('.html', '') || 'dashboard';
+        routeTo(initialRoute, false); 
+        // ...
     }
 
     function logout() {
         localStorage.removeItem('authToken'); 
+        
         // 🎯 CRITICAL: Run cleanup before redirecting!
         viewResources.cleanup(); 
         if (viewResources.websocket) {
             viewResources.websocket.close();
         }
+        
         window.location.replace('login_page.html');
     }
     
-    // --- 5. ROUTING LOGIC (THE FIX) ---
+    // --- 5. ROUTING LOGIC (With Cleanup and Script Fix) ---
     async function routeTo(viewName, updateHistory = true) {
         if (!contentContainer) {
             console.error("Content container not found.");
             return;
         }
-
-        // 🎯 CRITICAL: CLEANUP THE PREVIOUS VIEW'S RESOURCES FIRST
+        
+        // 🎯 FIX 2: CLEANUP THE PREVIOUS VIEW'S RESOURCES FIRST
         viewResources.cleanup(); 
         if (viewResources.observer) {
             viewResources.observer.disconnect();
@@ -172,7 +220,6 @@
         }
         viewResources.cleanup = () => {}; // Reset the cleanup function
 
-        // Adjust viewName to remove ".html" if present, for cleaner hash/URL management
         const finalViewName = viewName.replace('.html', '');
 
         try {
@@ -188,13 +235,18 @@
                 window.location.hash = finalViewName;
             }
             
-            // Re-run scripts in the loaded view content 
+            // 🎯 FIX 3: Correctly Re-run scripts and avoid immediate removal
             const scripts = contentContainer.querySelectorAll('script');
             scripts.forEach(script => {
                 const newScript = document.createElement('script');
                 newScript.textContent = script.textContent;
-                // Append to document.head to execute. DO NOT remove it immediately!
+                // Append to document.head for execution
                 document.head.appendChild(newScript);
+                
+                // IMPORTANT: The script object is now in the DOM. The next routeTo call 
+                // will trigger the cleanup functions inside the loaded script.
+                // We DON'T remove it here. Removing it here (`removeChild`) breaks
+                // any event listeners/WebSockets/Observers created inside it.
             });
 
         } catch (error) {
@@ -205,7 +257,7 @@
             </div>`;
         }
         
-        // Update sidebar active state (your existing logic)
+        // Update sidebar active state 
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
             if (link.dataset.view.replace('.html', '') === finalViewName) {
@@ -219,21 +271,18 @@
     }
 
 
-    // --- 6. INITIALIZATION BLOCK ---
+    // --- 6. INITIALIZATION BLOCK (The one that was throwing the error) ---
     document.addEventListener('DOMContentLoaded', () => {
+        // These now work because they are in the same script scope
         initializeTheme();
         initializeSidebar();
         
         // --- UI Listeners ---
         themeToggle.addEventListener('click', toggleTheme);
         sidebarToggle.addEventListener('click', toggleSidebar);
-        notificationButton.addEventListener('click', (event) => {
-            // ... (Your notification dropdown logic)
-        });
-        document.addEventListener('click', (event) => {
-             // ... (Your notification close logic)
-        });
         document.getElementById('sidebar-logout-btn').addEventListener('click', logout);
+        
+        // (Add your Notification Dropdown listeners here)
         
         // --- Auth & Routing Start ---
         const token = localStorage.getItem('authToken');
@@ -251,7 +300,7 @@
             }
         });
 
-        startSimulation();
+        // startSimulation(); // Call this here if needed
     });
 </script>
 </body>
