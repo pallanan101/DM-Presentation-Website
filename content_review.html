@@ -437,7 +437,7 @@
         // Only set up socket if token exists (i.e., user is logged in)
         if (!token) return; 
         
-        socket = new WebSocket(`ws://www.arta-tsg.com:3001/?token=${token}`);
+        socket = new WebSocket(`wss://www.arta-tsg.com:3001/?token=${token}`);
         viewResources.websocket = socket; 
 
         socket.onmessage = (event) => {
