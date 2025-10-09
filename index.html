@@ -95,19 +95,22 @@
     </div>
 
  <script>
-    // --- 1. GLOBAL STATE AND CONFIGURATION ---
+     // --- 1. GLOBAL STATE AND CONFIGURATION ---
     const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
     let notificationCount = 0;
     let notifications = []; 
+    
+    // 🎯 NEW FIX: Array to track and clean up scripts appended from the view file
+    let injectedViewScripts = []; 
 
-    // 🎯 FIX 1: Global Resource Manager (Needed for WebSocket/Observer Cleanup)
+    // Global container for resources that need manual cleanup on route change
     const viewResources = {
         observer: null,
         websocket: null,
         cleanup: () => {} // Function defined by the current view
     };
 
-    // --- 2. DOM ELEMENT REFERENCES ---
+    // --- 2. DOM ELEMENT REFERENCES (All available here) ---
     const sidebar = document.getElementById('sidebar');
     const themeToggle = document.getElementById('theme-toggle');
     const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -176,7 +179,123 @@
 
     // ... (Your existing notification utilities: updateBadge, getNotificationIcon, 
     //      renderNotificationList, handleNotificationReceived, startSimulation)
-    
+     // DOM element retrieval is safe here since the script is defined after the elements
+        // --- NOTIFICATION UTILITIES ---
+
+        function updateBadge(count) {
+            notificationCount = count;
+            if (notificationCount > 0) {
+                notificationBadge.textContent = notificationCount;
+                notificationBadge.classList.remove('hidden');
+            } else {
+                notificationBadge.textContent = '';
+                notificationBadge.classList.add('hidden');
+            }
+        }
+        
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'error': return { icon: 'fa-times-circle', color: 'text-red-500' };
+                case 'warning': return { icon: 'fa-exclamation-triangle', color: 'text-yellow-500' };
+                case 'info':
+                default: return { icon: 'fa-info-circle', color: 'text-blue-500' };
+            }
+        }
+
+        function renderNotificationList() {
+            // Apply theme colors to dropdown itself
+            const isDark = localStorage.getItem('theme') === 'dark';
+            
+            if (isDark) {
+                notificationDropdown.classList.remove('bg-white', 'border-gray-200');
+                notificationDropdown.classList.add('bg-gray-900', 'border-gray-700');
+            } else {
+                notificationDropdown.classList.remove('bg-gray-900', 'border-gray-700');
+                notificationDropdown.classList.add('bg-white', 'border-gray-200');
+            }
+            
+            // Filter to show only the last 10 (or a manageable number)
+            const recentNotifications = notifications.slice(-10).reverse(); 
+            
+            notificationList.innerHTML = ''; // Clear previous list
+
+            if (recentNotifications.length === 0) {
+                notificationList.innerHTML = '<li class="p-4 text-gray-500 text-sm italic text-center">No recent notifications.</li>';
+                return;
+            }
+
+            recentNotifications.forEach((n, index) => {
+                const isUnread = n.unread;
+                const { icon, color } = getNotificationIcon(n.type);
+                
+                const item = document.createElement('li');
+                // Apply conditional dark mode classes on the list item
+                const unreadBg = isDark ? 'bg-gray-800' : 'bg-green-50/50';
+                const defaultBg = isDark ? 'bg-gray-900' : 'bg-white';
+                const hoverBg = isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
+                const itemTextColor = isDark ? 'text-gray-200' : 'text-gray-800';
+                
+                item.className = `p-3 flex items-start space-x-3 cursor-pointer border-b last:border-b-0 ${isUnread ? unreadBg : defaultBg} ${hoverBg} transition duration-100`;
+                
+                item.innerHTML = `
+                    <i class="fas ${icon} ${color} mt-0.5"></i>
+                    <div class="flex-grow">
+                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.message}</p>
+                        <p class="text-gray-400 text-xs mt-1">${n.timestamp.toLocaleTimeString()}</p>
+                    </div>
+                `;
+                
+                item.addEventListener('click', (e) => {
+                    // Prevent the click from bubbling up to the document click handler that closes the dropdown
+                    e.stopPropagation(); 
+                    if (n.unread) {
+                        n.unread = false;
+                        updateBadge(notificationCount > 0 ? notificationCount - 1 : 0);
+                        renderNotificationList();
+                    }
+                });
+
+                notificationList.appendChild(item);
+            });
+        }
+
+        function handleNotificationReceived(message, type) {
+            const newNotification = { 
+                message, 
+                timestamp: new Date(), 
+                type, 
+                unread: true 
+            };
+            
+            notifications.push(newNotification);
+            updateBadge(notificationCount + 1);
+        }
+
+        // --- SIMULATED REAL-TIME FEED ---
+        const sampleNotifications = [
+            { msg: "Task A-501 was automatically unlocked.", type: "warning" },
+            { msg: "New high-priority task assigned: B-993.", type: "info" },
+            { msg: "System maintenance starting in 5 min.", type: "info" },
+            { msg: "Critical queue depth reached.", type: "error" },
+            { msg: "User JohnDoe has locked Task C-202.", type: "info" }
+        ];
+        
+        let simIndex = 0;
+        function startSimulation() {
+            // Trigger 3 initial notifications on load
+            for (let i = 0; i < 3; i++) {
+                 handleNotificationReceived(sampleNotifications[simIndex % sampleNotifications.length].msg, sampleNotifications[simIndex % sampleNotifications.length].type);
+                 simIndex++;
+            }
+            
+            // Continue simulation every 15 seconds
+            setInterval(() => {
+                const alert = sampleNotifications[simIndex % sampleNotifications.length];
+                handleNotificationReceived(alert.msg, alert.type);
+                simIndex++;
+            }, 15000); 
+        }
+
     // --- 4. AUTH & USER LOGIC ---
 
     async function fetchMeAndRoute() {
@@ -189,36 +308,40 @@
         // ...
     }
 
-    function logout() {
+       function logout() {
         localStorage.removeItem('authToken'); 
-        
-        // 🎯 CRITICAL: Run cleanup before redirecting!
         viewResources.cleanup(); 
         if (viewResources.websocket) {
             viewResources.websocket.close();
         }
-        
         window.location.replace('login_page.html');
     }
     
-    // --- 5. ROUTING LOGIC (With Cleanup and Script Fix) ---
+    // --- 5. ROUTING LOGIC (The complete, final fix) ---
     async function routeTo(viewName, updateHistory = true) {
         if (!contentContainer) {
             console.error("Content container not found.");
             return;
         }
         
-        // 🎯 FIX 2: CLEANUP THE PREVIOUS VIEW'S RESOURCES FIRST
+        // 🎯 FIX A: RUN ALL PREVIOUS VIEW CLEANUP LOGIC
+        // 1. Run view-specific cleanup (e.g., Chart.js destroy, WebSocket close)
         viewResources.cleanup(); 
+        // 2. Disconnect and nullify the observer (e.g., from dashboard.html)
         if (viewResources.observer) {
             viewResources.observer.disconnect();
             viewResources.observer = null;
         }
+        // 3. Close and nullify the websocket (e.g., from content_review.html)
         if (viewResources.websocket && viewResources.websocket.readyState === WebSocket.OPEN) {
             viewResources.websocket.close();
             viewResources.websocket = null;
         }
-        viewResources.cleanup = () => {}; // Reset the cleanup function
+        viewResources.cleanup = () => {}; // Reset for the next view
+
+        // 🎯 FIX B: REMOVE SCRIPTS FROM PREVIOUS VIEW TO AVOID CONFLICTS
+        injectedViewScripts.forEach(script => script.remove());
+        injectedViewScripts = []; // Reset the tracker for the new view
 
         const finalViewName = viewName.replace('.html', '');
 
@@ -235,7 +358,7 @@
                 window.location.hash = finalViewName;
             }
             
-            // 🎯 FIX 3: Correctly Re-run scripts and avoid immediate removal
+            // 🎯 FIX C: Re-run scripts and TRACK THEM
             const scripts = contentContainer.querySelectorAll('script');
             scripts.forEach(script => {
                 const newScript = document.createElement('script');
@@ -243,10 +366,8 @@
                 // Append to document.head for execution
                 document.head.appendChild(newScript);
                 
-                // IMPORTANT: The script object is now in the DOM. The next routeTo call 
-                // will trigger the cleanup functions inside the loaded script.
-                // We DON'T remove it here. Removing it here (`removeChild`) breaks
-                // any event listeners/WebSockets/Observers created inside it.
+                // Track the new script so we can remove it later
+                injectedViewScripts.push(newScript); 
             });
 
         } catch (error) {
@@ -257,41 +378,39 @@
             </div>`;
         }
         
-        // Update sidebar active state 
+        // ... (Your existing sidebar active state update logic)
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
-            if (link.dataset.view.replace('.html', '') === finalViewName) {
-                link.classList.add('active');
+            if (link.dataset.view) { 
+                if (link.dataset.view.replace('.html', '') === finalViewName) {
+                    link.classList.add('active');
+                }
             }
         });
         
-        // Update page title
+        // ... (Your existing page title update logic)
         const titleText = finalViewName.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         document.getElementById('page-title').textContent = titleText;
     }
 
 
-    // --- 6. INITIALIZATION BLOCK (The one that was throwing the error) ---
+    // --- 6. INITIALIZATION BLOCK ---
     document.addEventListener('DOMContentLoaded', () => {
-        // These now work because they are in the same script scope
+        // ... (Your initialization and listener setup)
         initializeTheme();
         initializeSidebar();
         
-        // --- UI Listeners ---
         themeToggle.addEventListener('click', toggleTheme);
         sidebarToggle.addEventListener('click', toggleSidebar);
         document.getElementById('sidebar-logout-btn').addEventListener('click', logout);
         
-        // (Add your Notification Dropdown listeners here)
-        
-        // --- Auth & Routing Start ---
         const token = localStorage.getItem('authToken');
         if (!token) {
             window.location.replace('login_page.html');
             return;
         }
         
-        fetchMeAndRoute(); // This initiates the first route
+        fetchMeAndRoute(); 
         
         window.addEventListener('hashchange', () => {
             const viewName = window.location.hash.substring(1);
@@ -300,7 +419,7 @@
             }
         });
 
-        // startSimulation(); // Call this here if needed
+        startSimulation(); // Call this here if needed
     });
 </script>
 </body>
