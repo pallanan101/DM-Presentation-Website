@@ -1,0 +1,143 @@
+/* management.css */
+
+/* Dark Mode Compatibility for Cards (overriding tailwind's bg-white/text-gray-600) */
+/* The main.js handles the primary bg-white to bg-gray-500 swap, but we need to ensure text is visible inside the card. */
+
+/* Base card styling (for light mode) */
+.management-card {
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Dark mode overrides for cards */
+.bg-gray-500 .management-card {
+    /* Main.js swaps the container's bg-white to bg-gray-500, but the card itself is bg-white which main.js also swaps. */
+    /* Targeting the direct children of the swapped container (content-container/bg-gray-500) */
+    background-color: #374151; /* Darker slate for card background: bg-gray-700 equivalent */
+    color: #F3F4F6; /* Light text: text-gray-100 equivalent */
+}
+
+.bg-gray-500 .management-card p {
+    color: #9CA3AF; /* Muted light text: text-gray-400 equivalent */
+}
+
+
+/* --- Sub-view Tab Styling (Applies to Notification Center & Staff Management) --- */
+
+.sub-view-tabs button,
+.staff-tabs button {
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    border-bottom: none;
+    cursor: pointer;
+}
+
+/* Light Mode Tab Styles */
+.sub-view-tabs button.active,
+.staff-tabs button.active {
+    background-color: #ffffff;
+    color: #10B981; /* Green Accent */
+    border-color: #E5E7EB;
+}
+.sub-view-tabs button:not(.active),
+.staff-tabs button:not(.active) {
+    background-color: #F3F4F6;
+    color: #6B7280;
+}
+.sub-view-tabs button:not(.active):hover,
+.staff-tabs button:not(.active):hover {
+    background-color: #E5E7EB;
+}
+
+/* Dark Mode Tab Styles (when parent is bg-gray-500 or bg-gray-600) */
+.bg-gray-500 .sub-view-tabs button.active, 
+.bg-gray-600 .sub-view-tabs button.active,
+.bg-gray-500 .staff-tabs button.active, 
+.bg-gray-600 .staff-tabs button.active {
+    background-color: #374151; /* Card dark color */
+    color: #10B981;
+    border-color: #4B5563; /* Darker border */
+}
+
+.bg-gray-500 .sub-view-tabs button:not(.active),
+.bg-gray-600 .sub-view-tabs button:not(.active),
+.bg-gray-500 .staff-tabs button:not(.active),
+.bg-gray-600 .staff-tabs button:not(.active) {
+    background-color: #4B5563; /* Muted dark color */
+    color: #D1D5DB;
+}
+
+.bg-gray-500 .sub-view-tabs button:not(.active):hover,
+.bg-gray-600 .sub-view-tabs button:not(.active):hover,
+.bg-gray-500 .staff-tabs button:not(.active):hover,
+.bg-gray-600 .staff-tabs button:not(.active):hover {
+    background-color: #6B7280; /* Hover dark color */
+}
+
+
+/* --- Notification Center Styling --- */
+.notification-area {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 0 8px 8px 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+/* Dark Mode Notification Center Main Area */
+.bg-gray-500 .notification-area {
+    background-color: #374151; /* Card dark color */
+    color: #F3F4F6;
+}
+.bg-gray-500 .notification-area textarea,
+.bg-gray-500 .notification-area input {
+    background-color: #4B5563;
+    border-color: #6B7280;
+    color: #F3F4F6;
+}
+
+
+/* --- Staff Management Styling --- */
+.staff-area {
+    background-color: #ffffff;
+    padding: 24px;
+    border-radius: 0 8px 8px 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    min-height: 400px;
+}
+/* Dark Mode Staff Management Content Area */
+.bg-gray-500 .staff-area {
+    background-color: #374151; 
+    color: #F3F4F6;
+}
+
+/* Card and Table Overrides for Staff Status */
+.bg-gray-500 #online-moderators-card,
+.bg-gray-500 #offline-moderators-card {
+    background-color: #4B5563; /* Slightly lighter inner card in dark mode */
+}
+.bg-gray-500 #queue-list-table-container table {
+    background-color: #374151;
+}
+.bg-gray-500 #queue-list-table-container thead {
+    background-color: #4B5563;
+}
+.bg-gray-500 .queue-row:hover {
+    background-color: #4B5563; /* Darker hover for rows */
+}
+
+/* Modal Backgrop/Content for Task History */
+.modal-backdrop {
+    transition: opacity 0.3s ease;
+}
+.modal-content {
+    transition: background-color 0.3s;
+}
+.bg-gray-500 .modal-content {
+    background-color: #374151 !important; /* Override white */
+    color: #F3F4F6;
+}
+.bg-gray-500 .modal-content th,
+.bg-gray-500 .modal-content td {
+    color: #F3F4F6 !important;
+}

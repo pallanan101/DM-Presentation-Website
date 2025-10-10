@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
        <link rel="stylesheet" href="styles/main.css">
-       <link rel="stylesheet" href="styles/content_review.css">
+<link rel="stylesheet" href="styles/management.css">
 
 </head>
 <body class="bg-gray-100 text-gray-900"> 
@@ -24,9 +24,9 @@
             </div>
             
             <div id="nav-links">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
-                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="management.html" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
                 <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"  ><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
                 <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html" ><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
             </div>
@@ -49,7 +49,7 @@
                     <button id="sidebar-toggle" class=" hover:text-green-500 p-2 mr-4 transition duration-300">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
-                    <h2 id="page-title" class="text-xl font-semibold">Content Moderation</h2>
+                    <h2 id="page-title" class="text-xl font-semibold">Management</h2>
                 </div>
                 
                 <div class="flex items-center space-x-4">
@@ -88,69 +88,40 @@
                 <main id="content-container" class="bg-gray-100">
 <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-        
-         
-
-            <div id="content-review" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10"></div>
-
-
-
-
-        <div id="pending-moderation-list-page" class="page-content space-y-6 hidden">
-                <h2 id="queue-title" class="text-2xl font-bold">Queue Tasks</h2>
-                  <div id="history-control-bar" class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-4">
-                      <div class="relative w-full max-w-sm">
-                        <input
-                          type="text"
-                          id="history-search-input"
-                          placeholder="Search Content ID, Content, or Assigned To"
-                          class="search-input w-full p-2 pl-10 rounded-lg bg-gray-200 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        >
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                      </div>
-
-                      <div class="flex items-center space-x-2">
-                        <input type="date" id="history-start-date" class="p-2 rounded-lg bg-gray-200 text-gray-700 text-sm">
-                        <span class="text-gray-700">to</span>
-                        <input type="date" id="history-end-date" class="p-2 rounded-lg bg-gray-200 text-gray-700 text-sm">
-                        <button id="history-apply-filter-button" class="bg-blue-600 hover:bg-blue-700 text-gray-700 px-4 py-2 rounded-lg text-sm">Apply</button>
-                      </div>
-                    </div>
-
-                    <button onclick="backToQueueList()" class="bg-gray-200 hover:bg-gray-600 text-gray-700 px-4 py-2 rounded-lg text-sm">← Back to Queues</button>
-                        </div>
-
-  <div class="full-width-flex">
-    <div class="list-container">
-        <div class="pending-list-row font-semibold bg-gray-200 text-gray-700">
-              <div class="text-left"><button class="sortable-header" data-sort-key="task_id">Content ID<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="content">Content<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="source">Source<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="created_at">Entry Date<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="status">Status<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="violation">Violation<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left"><button class="sortable-header" data-sort-key="assigned_to">Assigned To<i class="fas fa-sort ml-1"></i></button></div>
-              <div class="text-left">Action</div>
-        </div>
-        <div id="pending-list-container"></div>
+<div id="management-home" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    
+    <div id="card-sensitive-words" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-red-500">
+        <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
+        <h3 class="text-xl font-bold mb-2">Sensitive Words</h3>
+        <p class="text-gray-600 text-sm">Manage the platform's content filter by adding, removing, or editing prohibited terms and phrases.</p>
     </div>
-  </div>
-</div>
-<div id="media-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 items-center justify-center hidden" onclick="closeMediaModal(event)">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 relative" onclick="event.stopPropagation()">
-        <button onclick="closeMediaModal()" class="absolute top-2 right-2 text-gray-700 hover:text-red-500 text-3xl font-bold z-50 leading-none h-8 w-8">&times;</button>
-        <div id="modal-content-area" class="w-full h-full flex justify-center items-center">
-            </div>
+
+    <div id="card-staff-management" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-green-500">
+        <i class="fas fa-users-cog text-3xl text-green-500 mb-3"></i>
+        <h3 class="text-xl font-bold mb-2">Staff Management</h3>
+        <p class="text-gray-600 text-sm">Oversee and manage the accounts, access levels, and permissions for all administrators, moderators, and internal team members.</p>
     </div>
+
+    <div id="card-notification-center" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-blue-500">
+        <i class="fas fa-bell text-3xl text-blue-500 mb-3"></i>
+        <h3 class="text-xl font-bold mb-2">Notification Center</h3>
+        <p class="text-gray-600 text-sm">The centralized tool for managing and dispatching all system and status notifications to users.</p>
+    </div>
+
 </div>
+
+<div id="management-sub-view" class="hidden">
+    </div>
+
+
+
 <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
                 </main>
             </div>
         </div>
     </div>
- <script src="scripts/content_review.js"></script>
+ <script src="scripts/management.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 </html>

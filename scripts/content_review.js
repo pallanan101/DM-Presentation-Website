@@ -251,7 +251,7 @@ async function loadModerationTasks() {
                 `;
                 
                 row.innerHTML = baseRowContent.replace(
-                    `<div style="display:flex;align-items:center;" class="text-gray-800 text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
+                    `<div style="display:flex;align-items:center;" class="text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
                     `<div style="display:flex;align-items:center;" class="content-cell">${mediaElement}</div>`
                 );
 
@@ -263,7 +263,7 @@ async function loadModerationTasks() {
                     : `<span class="text-gray-800 text-sm truncate">${content}</span>`;
                 
                 row.innerHTML = baseRowContent.replace(
-                    `<div style="display:flex;align-items:center;" class="text-gray-800 text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
+                    `<div style="display:flex;align-items:center;" class="text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
                     `<div style="display:flex;align-items:center;" class="content-cell">${mediaElement}</div>`
                 );
             } else {
