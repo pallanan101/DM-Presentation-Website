@@ -1,482 +1,353 @@
+// content_review.js (Finalized - Uses HTML Table Structure)
+
+// --- CONFIGURATION ---
 
 
+// --- GLOBAL FUNCTIONS (Called from HTML onclick) ---
+
+/**
+ * Handles switching from the queue list (table) to the specific task moderation list (page).
+ */
+let currentQueueId = null;
+
+ const API_BASE_URL2 = 'https://www.arta-tsg.com:3001/api';
+function showModerationTable(queueId, queueName) {
+    // 1. Hide the Queue List Table Area
+    const queueListArea = document.getElementById('content-review'); 
+    
+    // 2. Show the Pending Moderation List Page
+    const taskTableArea = document.getElementById('pending-moderation-list-page'); 
+    
+    if (queueListArea) queueListArea.classList.add('hidden');
+    if (taskTableArea) taskTableArea.classList.remove('hidden');
+    currentQueueId = queueId;
+
+    // This is where you would call the function to render the task list
+    loadPendingTasks(queueId, queueName); 
+    
+    console.log(`Switched to task view for Queue ID: ${queueId}, Name: ${queueName}`);
+
+}
+
+/**
+ * Handles navigation back from the task page to the main queue list table.
+ */
+function goBackToQueueList() {
+    const queueListArea = document.getElementById('content-review'); 
+    const taskTableArea = document.getElementById('pending-moderation-list-page');
+    
+    if (queueListArea) queueListArea.classList.remove('hidden');
+    if (taskTableArea) taskTableArea.classList.add('hidden');
+
+    loadContentReviewQueues();
+    currentQueueId = null;
+}
+
+
+// --- API & RENDERING FUNCTIONS ---
 
 async function loadContentReviewQueues() {
-  const container = document.getElementById('content-review');
-  container.innerHTML = ''; // Clear any existing content
-
-  try {
-    const token = localStorage.getItem('authToken');
-    const res = await fetch('https://www.arta-tsg.com:3001/api/queues', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-  const result = await res.json();
-const queues = result.queues;
-   console.log('📦 Raw response:', queues);
-queues.forEach(queue => {
-  const card = document.createElement('div');
-  const isDark = (localStorage.getItem('theme') || 'dark') === 'dark';
-
-card.classList.add(
-  'dark-card',
-  'nav-card',
-  'p-6',
-  'cursor-pointer',
-  isDark ? 'bg-gray-700' : 'bg-gray-200',
-  isDark ? 'text-gray-200' : 'text-gray-900'
-);
-  card.dataset.queueType = queue.queue_name;
-
-  card.innerHTML = `
-    <h3 class="text-xl font-semibold mb-2">${queue.queue_name}</h3>
-    <p class="text-gray-500 mb-2">Pending tasks in this queue</p>
-    <div class="flex justify-between items-center text-sm text-gray-500">
-      <span>Tasks: <span class="font-medium">${queue.pending_count}</span></span>
-      <span>Queue ID: ${queue.queue_id}</span>
-    </div>
-  `;
-
-  card.addEventListener('click', () => {
-showModerationTable(queue.queue_id, queue.queue_name);
-  });
-
-  container.appendChild(card);
-});
-  } catch (err) {
-    console.error('Failed to load queues:', err);
-    container.innerHTML = '<div class="text-red-500">Error loading moderation queues</div>';
-  }
-}
-
-
-
-
-
-
-
-const violationOptions = {
-  1: 'Spam',
-  2: 'Harassment',
-  3: 'Hate Speech',
-  4: 'Misinformation',
-  5: 'Offensive Content'
-};
-const lockedTasks = new Set();
-    let socket;
-
-function setupWebSocket() {
-  const token = localStorage.getItem('authToken');
-  if (!token) {
-    console.warn('No auth token found. Skipping WebSocket connection.');
-    return;
-  }
-
-  if (socket && socket.readyState === WebSocket.OPEN) return;
-
-  socket = new WebSocket(`wss://www.arta-tsg.com:3001/?token=${token}`);
-
-  socket.onmessage = (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.type === 'task_locked') {
-      updateTaskHighlight(msg.task_id, true, msg.locked_by);
-    } else if (msg.type === 'task_unlocked') {
-      updateTaskHighlight(msg.task_id, false, 'Unassigned');
+    // 🎯 FIX: Use the correct ID for the table body from your HTML
+    const queueListBody = document.getElementById('queue-list-body');
+    if (!queueListBody) {
+        console.error("DOM Error: #queue-list-body not found. Queue list cannot load.");
+        return;
     }
-  };
-
-  socket.onopen = () => console.log('WebSocket connected');
-  socket.onclose = () => console.warn('WebSocket disconnected');
-}
-  let currentQueueType = null;
-  let pendingSortKey = 'task_id';
-  let pendingSortDirection = 'asc';
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    setupWebSocket();
-  }
-});
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('history-search-input').addEventListener('input', () => {
-      loadModerationTasks();
-    });
-
-    document.getElementById('history-apply-filter-button').addEventListener('click', () => {
-      loadModerationTasks();
-    });
-
-    document.querySelectorAll('.sortable-header').forEach(header => {
-      header.addEventListener('click', () => {
-        const key = header.dataset.sortKey;
-        if (pendingSortKey === key) {
-          pendingSortDirection = pendingSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-          pendingSortKey = key;
-          pendingSortDirection = 'asc';
-        }
-        loadModerationTasks();
-      });
-    });
-    // setupWebSocket is now called after successful login in the script above
-  });
-
-  function showModerationTable(queueId, queueName) {
-    currentQueueType = queueId;
-    document.getElementById('content-review').style.display = 'none';
-    document.getElementById('pending-moderation-list-page').classList.remove('hidden');
-    document.getElementById('queue-title').textContent = `Tasks for ${queueName}`;
-    loadModerationTasks();
-  }
-
-  function backToQueueList() {
-    document.getElementById('pending-moderation-list-page').classList.add('hidden');
-    document.getElementById('content-review').style.display = 'grid';
-  }
-// Inside the <script> tags in app3.1.html
-
-async function loadModerationTasks() {
-    const container = document.getElementById('pending-list-container');
-    const searchTerm = document.getElementById('history-search-input').value.toLowerCase();
-    const startDate = document.getElementById('history-start-date').value;
-    const endDate = document.getElementById('history-end-date').value;
-
-    // Define the temporary placeholder image URL
-    const PLACEHOLDER_IMAGE_URL = 'https://i.pinimg.com/originals/19/51/dc/1951dc32a49c80597fa73876a70e9e1b.jpg'; // A simple "Play" icon placeholder
+    
+    queueListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">Loading queues...</td></tr>';
 
     try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`https://www.arta-tsg.com:3001/api/queues/${currentQueueType}/tasks`, {
+        const res = await fetch(`${API_BASE_URL2}/queues`, { 
             headers: { Authorization: `Bearer ${token}` }
         });
-        let result = await res.json();
-        let tasks = Array.isArray(result) ? result : result.tasks || [];
-
-        // ... (Filtering and Sorting logic remains the same)
-
-        // Filter by date range
-        if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            tasks = tasks.filter(task => {
-                const taskDate = new Date(task.created_at);
-                const inclusiveEnd = new Date(end);
-                inclusiveEnd.setDate(inclusiveEnd.getDate() + 1); 
-                return taskDate >= start && taskDate < inclusiveEnd;
-            });
-        }
-        // Filter by search
-        if (searchTerm) {
-            tasks = tasks.filter(task =>
-                task.task_id?.toString().toLowerCase().includes(searchTerm) ||
-                task.content?.toLowerCase().includes(searchTerm) ||
-                task.assigned_to?.toLowerCase().includes(searchTerm)
-            );
-        }
-
-        // Sort
-        tasks.sort((a, b) => {
-            const aVal = (a[pendingSortKey] || '').toString().toLowerCase();
-            const bVal = (b[pendingSortKey] || '').toString().toLowerCase();
-            return pendingSortDirection === 'asc'
-                ? aVal.localeCompare(bVal)
-                : bVal.localeCompare(aVal);
-        });
-
-        // Render
-        container.innerHTML = '';
-        tasks.forEach(task => {
-            const row = document.createElement('div');
-            row.classList.add('pending-list-row');
-            row.style.display = 'grid';
-            row.style.gridTemplateColumns = '100px 400px 100px 120px 80px 150px 150px 300px';
-            row.style.gap = '0.75rem';
-            row.style.padding = '0.75rem 1rem';
-            row.style.border = '1px solid #d1d5db'; 
-            row.style.borderRadius = '0.5rem'; 
-            row.style.marginBottom = '0.75rem'; 
-            row.style.alignItems = 'center';
-            row.dataset.taskId = task.task_id;
-
-            const content = task.content || '';
-            const queueId = currentQueueType;
-            const assignedUser = task.assigned_to || 'Unassigned'; 
-
-            if (assignedUser !== 'Unassigned') {
-                lockedTasks.add(task.task_id);
-            }
-
-            let contentCellInnerHtml = `<span class="text-sm truncate">${([1, 2, 3, 6, 7].includes(queueId)) ? content : ''}</span>`;
-             console.log('✅ queue id is : ', queueId);
-            const baseRowContent = `
-                <div style="display:flex;align-items:center;" class="text-xs">${task.task_id}</div>
-                <div style="display:flex;align-items:center;" class="text-sm truncate content-cell">${contentCellInnerHtml}</div>
-                <div style="display:flex;align-items:center;" class="text-sm">${task.source}</div>
-                <div style="display:flex;align-items:center;" class="text-xs">${task.created_at}</div>
-                <div style="display:flex;align-items:center;" class="text-sm">${task.status}</div>
-                <select id="violation-${task.task_id}" class="text-sm px-2 py-1 rounded border bg-orange-400 ">
-                    <option disabled value="0" ${!task.violation_id ? 'selected' : ''}>Select violation</option>
-                    ${Object.entries(violationOptions).map(([val, label]) =>
-                        `<option value="${val}" ${parseInt(val) === task.violation_id ? 'selected' : ''}>${label}</option>`).join('')}
-                </select>
-                <div style="display:flex;align-items:center;" class=" text-sm assigned-to-cell">${assignedUser}</div> 
-                <div style="display:flex;align-items:center;" class="action-cell">
-                    <button id="claimbutton-${task.task_id}" onclick="claimTask(${task.task_id})" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded-full">Claim</button>
-                    <button id="approve-${task.task_id}" onclick="resolveTask(${task.task_id}, 'Approved')" class="bg-gray-400 text-white text-xs px-3 py-1 rounded-full ml-2" disabled>Approve</button>
-                    <button id="reject-${task.task_id}" onclick="resolveTask(${task.task_id}, 'Rejected')" class="bg-gray-400 text-white text-xs px-3 py-1 rounded-full ml-2" disabled>Reject</button>
-                </div>
-            `;
-
-            if ([8, 9].includes(queueId)) {
-                // Video Logic: 
-                const videoId = content.includes('youtube.com') 
-                    ? content.split('v=')[1]?.split('&')[0]
-                    : content.match(/(youtu\.be\/|v=)([^&]+)/i)?.[2];
-                
-                const thumbnailURL = videoId ? `https://img.youtube.com/vi/${videoId}/0.jpg` : null;
-                const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : content;
-
-
-                // 🎯 FORCE TEMPORARY IMAGE: Use the placeholder image regardless of thumbnail success
-                const mediaElement = `
-                    <img 
-                        src="${PLACEHOLDER_IMAGE_URL}" 
-                        alt="Video Placeholder" 
-                        class="cursor-pointer" 
-                        style="width:100px;height:100px;object-fit:cover;border-radius:6px; border: 2px solid #ef4444;" 
-                        onclick="event.stopPropagation(); openMediaModal('video', '${embedUrl}')">
-                `;
-                
-                row.innerHTML = baseRowContent.replace(
-                    `<div style="display:flex;align-items:center;" class="text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
-                    `<div style="display:flex;align-items:center;" class="content-cell">${mediaElement}</div>`
-                );
-
-            } else if ([4, 5].includes(queueId)) {
-                // Image Logic (Existing logic)
-                const isImage = content.match(/\.(jpg|jpeg|png|gif)$/i);
-                const mediaElement = isImage 
-                    ? `<img src="${content}" alt="Image" class="cursor-pointer" style="width:100px;height:100px;object-fit:cover;border-radius:6px;" onclick="event.stopPropagation(); openMediaModal('image', '${content}')">` 
-                    : `<span class="text-gray-800 text-sm truncate">${content}</span>`;
-                
-                row.innerHTML = baseRowContent.replace(
-                    `<div style="display:flex;align-items:center;" class="text-sm truncate content-cell">${contentCellInnerHtml}</div>`,
-                    `<div style="display:flex;align-items:center;" class="content-cell">${mediaElement}</div>`
-                );
-            } else {
-                 row.innerHTML = baseRowContent;
-            }
-
-            container.appendChild(row);
-
-            if (assignedUser !== 'Unassigned') {
-                updateTaskHighlight(task.task_id, true, assignedUser);
-            } else {
-                updateTaskHighlight(task.task_id, false, 'Unassigned'); 
-            }
-        });
-    } catch (err) {
-        console.error('Failed to load moderation tasks:', err);
-        container.innerHTML = '<div class="text-red-500">Error loading tasks</div>';
-    }
-    await syncLockedTasks();
-}
-
-  async function syncLockedTasks() {
-  const token = localStorage.getItem('authToken');
-  try {
-    const res = await fetch('https://www.arta-tsg.com:3001/api/task-locks', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const result = await res.json();
-    if (result.success) {
-      result.locks.forEach(lock => {
-        updateTaskHighlight(lock.task_id, true, lock.locked_by);
-      });
-    }
-  } catch (err) {
-    console.error('Failed to sync locked tasks:', err);
-  }
-}
-
-function isDarkTheme() {
-  return (localStorage.getItem('theme') || 'dark') === 'dark';
-}
-function updateRowStyle(row, isLocked) {
-  const dark = isDarkTheme();
-
-  // Clear all possible background/text classes first
-  row.classList.remove('bg-gray-200', 'bg-gray-700', 'bg-gray-100', 'bg-red-100');
-  row.classList.remove('text-gray-200', 'text-gray-700', 'text-gray-800');
-
-  if (isLocked) {
-    row.classList.add('bg-red-100', 'text-gray-700');
-  } else {
-    if (!dark) {
-      row.classList.add('bg-gray-200', 'text-gray-900');
-    } else {
-      row.classList.add('bg-gray-700', 'text-gray-200');
-    }
-  }
-}
-
-  function updateTaskHighlight(taskId, isLocked, locked_by = null) {
-    const row = document.querySelector(`.pending-list-row[data-task-id="${taskId}"]`);
-    if (!row) return;
-
-    const claimButton = document.getElementById(`claimbutton-${taskId}`);
-    const approveButton = document.getElementById(`approve-${taskId}`);
-    const rejectButton = document.getElementById(`reject-${taskId}`);
-    const assignedCell = row.querySelector('.assigned-to-cell'); 
-
-    if (isLocked) {
-        lockedTasks.add(taskId);
-        if (assignedCell) assignedCell.textContent = locked_by;
-    } else {
-        lockedTasks.delete(taskId);
-        if (assignedCell) assignedCell.textContent = 'Unassigned';
-    }
-
-    const isClaimedByMe = isLocked && locked_by === currentUsername;
-
-    // Visual highlight for *any* lock
-    row.style.border = isLocked ? '2px solid #f87171' : '1px solid #d1d5db';
-    
-    updateRowStyle(row, isLocked);
-
-    if (claimButton) {
-        // Claim button is hidden if claimed by anyone (including self)
-        claimButton.style.display = isLocked ? 'none' : 'block'; 
-        claimButton.disabled = isLocked;
-    }
-    
-    // Enable resolve buttons ONLY if claimed by current user
-    if (approveButton && rejectButton) {
-        const isReadyToResolve = isClaimedByMe;
-
-        approveButton.disabled = !isReadyToResolve;
-        rejectButton.disabled = !isReadyToResolve;
-
-        // Change button visibility and color
-        approveButton.style.display = isReadyToResolve ? 'inline-block' : 'none';
-        rejectButton.style.display = isReadyToResolve ? 'inline-block' : 'none';
         
-        approveButton.classList.toggle('bg-green-600', isReadyToResolve);
-        approveButton.classList.toggle('bg-gray-400', !isReadyToResolve);
-        rejectButton.classList.toggle('bg-red-600', isReadyToResolve);
-        rejectButton.classList.toggle('bg-gray-400', !isReadyToResolve);
+        const result = await res.json();
+        const queues = result.queues || [];
+        
+        queueListBody.innerHTML = '';
+        
+        if (queues.length === 0) {
+            queueListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">No moderation queues found.</td></tr>';
+            return;
+        }
+
+        queues.forEach(queue => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition duration-150';
+            
+            const totalPending = queue.total_pending_count || 0;
+            // Assuming the server returns assigned_count for the logged-in user
+            const assignedToMe = queue.assigned_count || 0; 
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${queue.queue_name} (${queue.queue_type})</td>
+                <td class="px-6 py-4 whitespace-nowrap text-base font-semibold text-center text-red-600">${totalPending}</td>
+                <td id="assigned-count-${queue.queue_id}" class="px-6 py-4 whitespace-nowrap text-base font-semibold text-center text-green-600">${assignedToMe}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <button class="text-indigo-600 hover:text-indigo-900 focus:outline-none" 
+                            onclick="showModerationTable(${queue.queue_id}, '${queue.queue_name}')">
+                        View My Tasks
+                    </button>
+                </td>
+            `;
+            queueListBody.appendChild(row);
+        });
+
+    } catch (err) {
+        console.error('Failed to load queues:', err);
+        queueListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-red-500 text-center">Error loading queues. Please check the API status.</td></tr>';
     }
 }
 
+let violationOptions = [];
 
-async function resolveTask(taskId, action) {
-    const token = localStorage.getItem('authToken');
-    const violationSelect = document.getElementById(`violation-${taskId}`);
-    
-    // 🎯 FIX: Set violation_id to 0 for Approved action
-    let violation_id = 0; 
-
-    // Require a violation_id (1-5) only if the action is 'Rejected'
-    if (action === 'Rejected') {
-        violation_id = violationSelect?.value || null;
-        if (!violation_id || violation_id === '0') {
-             alert('Please select a violation before rejecting the task.');
-             return;
-        }
-    } 
-    if (action === 'Approved') {
-        violation_id = null;
-    }
-
-
-  const res = await fetch(`https://www.arta-tsg.com:3001/api/tasks/${taskId}/resolve`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ action, violation_id })
+async function loadViolationOptions() {
+  const token = localStorage.getItem('authToken');
+  const resp = await fetch(`${API_BASE_URL2}/violations`, {
+    headers: { 'Authorization': `Bearer ${token}` }
   });
-
-  const result = await res.json();
-  if (result.success) {
-    // Task is resolved, remove it from the view
-    const row = document.querySelector(`.pending-list-row[data-task-id="${taskId}"]`);
-    if (row) {
-        row.remove();
-    }
-    const message = action === 'Approved' 
-        ? `Task ${taskId} approved (Violation ID set to 0)!` 
-        : `Task ${taskId} rejected! Violation ID: ${violation_id}`;
-    alert(message);
-    // loadModerationTasks(); // No need to reload, just remove the row
+  const { success, violations } = await resp.json();
+  if (success) {
+    violationOptions = violations; 
   } else {
-    alert(result.message || 'Failed to resolve task');
+    console.error('Failed to load violations');
+  }
+}
+
+// Call it when your app initializes
+loadViolationOptions();
+
+function renderViolationDropdown(selectedId, contentId) {
+  return `
+    <select id="violation-select-${contentId}" class="violation-select px-2 py-1 border rounded">
+      
+      ${violationOptions.map(v => `
+        <option value="${v.violation_id}"
+          ${v.violation_id === selectedId ? 'selected' : ''}>
+          ${v.violation_name}
+        </option>`).join('')}
+    </select>`;
+}
+
+
+
+async function loadPendingTasks(queueId, queueName) {
+  const container = document.getElementById('pending-moderation-list-page');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="mb-6">
+      <button onclick="goBackToQueueList()" class="text-gray-600 hover:text-gray-900 font-medium flex items-center">
+        ← Back to Queues
+      </button>
+    </div>
+    <h2 class="text-2xl font-bold mb-6">${queueName} – Tasks Assigned to Me</h2>
+    <div class="overflow-x-auto border rounded-lg bg-white shadow">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Content ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Content</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted At</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Violation</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
+          </tr>
+        </thead>
+        <tbody id="task-list-body" class="bg-white divide-y divide-gray-200">
+          <tr>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Fetching tasks…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const body = document.getElementById('task-list-body');
+  const token = localStorage.getItem('authToken');
+
+ 
+    const resp = await fetch(`${API_BASE_URL}/queues/${queueId}/tasks`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const { success, tasks, message } = await resp.json();
+
+    if (!success) {
+      body.innerHTML = `
+        <tr><td colspan="5" class="px-6 py-4 text-center text-red-500">
+          Error: ${message || 'Could not load tasks'}
+        </td></tr>`;
+      return;
+    }
+    if (tasks.length === 0) {
+      body.innerHTML = `
+        <tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">
+          No pending tasks assigned
+        </td></tr>`;
+      return;
+    }
+
+    // Render rows
+   body.innerHTML = '';
+  tasks.forEach(task => addOrUpdateTaskRow(task));
+
+
+  
+}
+
+
+function addOrUpdateTaskRow(task) {
+  const tbody = document.getElementById('task-list-body');
+  const rowId = `task-${task.content_id}`;
+  const existing = document.getElementById(rowId);
+
+  const rowHTML = `
+    <tr id="${rowId}">
+      <td class="px-6 py-4">${task.content_id}</td>
+      <td class="px-6 py-4">${task.content}</td>
+      <td class="px-6 py-4">${new Date(task.created_at).toLocaleString()}</td>
+      <td class="px-6 py-4">
+        ${renderViolationDropdown(task.violation_id, task.content_id)}
+      </td>
+      <td class="px-6 py-4 text-center space-x-2">
+        <button
+          class="px-3 py-1 bg-green-100 text-green-800 rounded"
+          onclick="
+            approve('${task.content_id}')
+          ">
+          Approve
+        </button>
+        <button
+          class="px-3 py-1 bg-red-100 text-red-800 rounded"
+          onclick="
+            reject('${task.content_id}')
+          ">
+          Reject
+        </button>
+      </td>
+    </tr>
+  `;
+
+  if (existing) {
+    existing.outerHTML = rowHTML;
+  } else {
+    tbody.insertAdjacentHTML('afterbegin', rowHTML);
   }
 }
 
 
-  async function claimTask(taskId) {
-    const token = localStorage.getItem('authToken');
-    const res = await fetch(`https://www.arta-tsg.com:3001/api/tasks/${taskId}/claim`, {
+
+async function approve(contentId) {
+    
+  console.log("to task :",contentId);
+  const token = localStorage.getItem('authToken');
+  const dropdown = document.getElementById(`violation-select-${contentId}`);
+  const newViolationId = dropdown.value;
+
+  try {
+    const resp = await fetch(`${API_BASE_URL}/tasks/${contentId}/approve`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ violation_id: newViolationId })
     });
-
-    const result = await res.json();
-    if (result.success) {
-        updateTaskHighlight(taskId, true, currentUsername);
+    const { success, message } = await resp.json();
+    if (success) {
+      document.getElementById(`task-${contentId}`).remove();
     } else {
-      alert(result.message || 'Failed to claim task');
+      alert('Approve failed: ' + (message || 'Unknown error'));
     }
+  } catch (err) {
+    console.error(err);
+    alert('Network error, try again');
   }
-
-// --- New Modal Functions ---
-
-function openMediaModal(mediaType, url) {
-    const modal = document.getElementById('media-modal');
-    const contentArea = document.getElementById('modal-content-area');
-    contentArea.innerHTML = ''; // Clear previous content
-
-    if (mediaType === 'image') {
-        contentArea.innerHTML = `<img src="${url}" alt="Full Image Preview" style="max-width: 100%; max-height: 80vh;">`;
-    } else if (mediaType === 'video') {
-        contentArea.innerHTML = `
-            <iframe 
-                width="800" 
-                height="450" 
-                src="${url}?autoplay=1" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
-        `;
-    }
-    
-    // Set display to flex to show the modal
-    modal.style.display = 'flex';
 }
 
-function closeMediaModal(event) {
-    // Check if the click was directly on the modal background. 
-    // If event is not provided (clicked the X button) or the click target is the modal background, close it.
-    if (event && event.target.id !== 'media-modal') {
-        return; // Clicked inside the modal content, do nothing
+async function reject( contentId) {
+  const token = localStorage.getItem('authToken');
+  const dropdown = document.getElementById(`violation-select-${contentId}`);
+  const newViolationId = dropdown.value;
+
+  try {
+    const resp = await fetch(`${API_BASE_URL}/tasks/${contentId}/reject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ violation_id: newViolationId })
+    });
+    const { success, message } = await resp.json();
+    if (success) {
+      document.getElementById(`task-${contentId}`).remove();
+    } else {
+      alert('Reject failed: ' + (message || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Network error, try again');
+  }
+}
+
+
+// Placeholder functions (Ensure they are defined elsewhere or remain in this file)
+function openMediaModal(url, mediaType) {
+    // ... modal display logic ...
+}
+function closeMediaModal() {
+    // ... modal hide logic ...
+}
+
+
+// --- GLOBAL WS INTEGRATION ---
+
+/**
+ * Subscribes to the global status updates handler to get real-time task count updates.
+ */
+function subscribeToGlobalUpdates() {
+  if (typeof window.subscribeToTaskAssignments !== 'function') return;
+
+  window.subscribeToTaskAssignments(task => {
+    // Safety check
+    if (!task) return;
+
+    // Determine which view is visible
+    const queueListArea  = document.getElementById('content-review');
+    const taskTableArea  = document.getElementById('pending-moderation-list-page');
+    const isQueueList    = queueListArea && !queueListArea.classList.contains('hidden');
+    const isTaskTable    = taskTableArea && !taskTableArea.classList.contains('hidden');
+
+    // A) If we’re on the queue-list page, refresh counts
+    if (isQueueList) {
+      loadContentReviewQueues();
     }
 
-    const modal = document.getElementById('media-modal');
-    const contentArea = document.getElementById('modal-content-area');
-    
-    // Stop video playback by clearing the content
-    contentArea.innerHTML = '';
-    
-    // Hide the modal
-    modal.style.display = 'none';
+    // B) If we’re on the task table AND this assignment matches the open queue
+    if (isTaskTable && currentQueueId !== null && task.queue_id === currentQueueId) {
+      addOrUpdateTaskRow(task);
+    }
+  });
 }
-loadContentReviewQueues();
+
+
+// // --- INITIALIZATION ---
+//     // content_review.js
+// document.addEventListener('task_assigned', e => {
+//   const task = e.detail;               // { queue_id, content_id, … }
+//   if (task.queue_id !== currentQueueId) {
+//     return;                            // ignore other queues
+//   }
+//   addOrUpdateTaskRow(task);            // inject into the table
+// });
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // The main function that loads and renders the queues into #queue-list-body
+    loadContentReviewQueues();
+    
+    // Start listening for real-time updates without managing the socket connection itself
+    subscribeToGlobalUpdates();
+});

@@ -125,6 +125,9 @@
         }
 
         function logout(force = false) {
+            sendExplicitLogoutSignal(); 
+ localStorage.removeItem('username');
+
             localStorage.removeItem('authToken'); 
             window.location.replace('login_page.html');
         }

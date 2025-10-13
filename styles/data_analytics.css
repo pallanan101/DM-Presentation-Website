@@ -1,0 +1,86 @@
+ .heatmap-grid {
+            grid-template-columns: 50px repeat(24, 1fr); /* Time labels + 24 hours */
+            grid-template-rows: 30px repeat(7, 1fr); /* Day labels + 7 days */
+            width: 100%;
+            height: 400px;
+        }
+
+        .heatmap-cell {
+            border: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #4b5563; /* Default text color */
+            transition: background-color 0.3s ease;
+        }
+
+        .label-cell {
+            background-color: #f9fafb;
+            font-weight: 500;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            position: sticky;
+            z-index: 10;
+        }
+        
+        /* Specific label cells stick in place */
+        .day-label {
+            left: 0;
+            z-index: 20;
+        }
+
+        .hour-label {
+            top: 0;
+            z-index: 20;
+        }
+
+        /* Color scale for heatmap intensity (0-4 levels) */
+        .color-0 { background-color: #ebf8ff; /* Very Light Blue/Off-White */ }
+        .color-1 { background-color: #c3e0ff; /* Light Blue */ }
+        .color-2 { background-color: #79adff; /* Medium Blue */ }
+        .color-3 { background-color: #3b82f6; /* Tailwind Blue-500 */ }
+        .color-4 { background-color: #1e40af; /* Dark Blue */ color: white; font-weight: bold;} /* High Intensity */
+        
+        /* Roboto font from the original image seems appropriate */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f6fa;
+        }
+        
+        /* Responsive adjustments for mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: absolute;
+                z-index: 50;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            .heatmap-grid {
+                 /* Allow heatmap to scroll horizontally on small screens */
+                width: 1500px; 
+                height: 300px;
+            }
+            .heatmap-container {
+                overflow-x: auto;
+            }
+            /* Make table scrollable on small screens */
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+        
+        /* Fix for sticky day labels in the scrollable container */
+        .heatmap-container .day-label {
+            position: absolute;
+            width: 50px;
+            height: 100%;
+            left: 0;
+        }
+        
+        .heatmap-container .hour-label {
+            position: sticky;
+        }
