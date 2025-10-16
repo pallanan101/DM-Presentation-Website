@@ -71,18 +71,15 @@ async function loadContentReviewQueues() {
             queueListBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">No moderation queues found.</td></tr>';
             return;
         }
-
+        console.log("Queues Data Recieved : ", queues);
         queues.forEach(queue => {
             const row = document.createElement('tr');
             row.className = 'hover:bg-gray-50 transition duration-150';
-            
-            const totalPending = queue.total_pending_count || 0;
             // Assuming the server returns assigned_count for the logged-in user
-            const assignedToMe = queue.assigned_count || 0; 
+            const assignedToMe = queue.assigned_to_me_count || 0; 
             
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${queue.queue_name} (${queue.queue_type})</td>
-                <td class="px-6 py-4 whitespace-nowrap text-base font-semibold text-center text-red-600">${totalPending}</td>
                 <td id="assigned-count-${queue.queue_id}" class="px-6 py-4 whitespace-nowrap text-base font-semibold text-center text-green-600">${assignedToMe}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     <button class="text-indigo-600 hover:text-indigo-900 focus:outline-none" 
@@ -167,7 +164,7 @@ async function loadPendingTasks(queueId, queueName) {
   const token = localStorage.getItem('authToken');
 
  
-    const resp = await fetch(`${API_BASE_URL}/queues/${queueId}/tasks`, {
+    const resp = await fetch(`${API_BASE_URL2}/queues/${queueId}/tasks`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const { success, tasks, message } = await resp.json();
@@ -245,7 +242,7 @@ async function approve(contentId) {
   const newViolationId = dropdown.value;
 
   try {
-    const resp = await fetch(`${API_BASE_URL}/tasks/${contentId}/approve`, {
+    const resp = await fetch(`${API_BASE_URL2}/tasks/${contentId}/approve`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -271,7 +268,7 @@ async function reject( contentId) {
   const newViolationId = dropdown.value;
 
   try {
-    const resp = await fetch(`${API_BASE_URL}/tasks/${contentId}/reject`, {
+    const resp = await fetch(`${API_BASE_URL2}/tasks/${contentId}/reject`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -309,24 +306,40 @@ function closeMediaModal() {
 function subscribeToGlobalUpdates() {
   if (typeof window.subscribeToTaskAssignments !== 'function') return;
 
-  window.subscribeToTaskAssignments(task => {
+  window.subscribeToTaskAssignments(payload  => {
+    const task = payload?.task;
+
+
     // Safety check
-    if (!task) return;
+    console.log("recieved a task : ",task)
+    if (!task) 
+      {
+        console.log("task has no value")
+        return;
+      }
 
     // Determine which view is visible
     const queueListArea  = document.getElementById('content-review');
     const taskTableArea  = document.getElementById('pending-moderation-list-page');
     const isQueueList    = queueListArea && !queueListArea.classList.contains('hidden');
     const isTaskTable    = taskTableArea && !taskTableArea.classList.contains('hidden');
-
+    const isSameQueue = String(task.queue_id) === String(currentQueueId);
+    console.log("queueListArea : " , queueListArea); 
+    console.log("taskTableArea : " , taskTableArea);
+    console.log("isQueueList : " , isQueueList);
+    console.log("isTaskTable : " , isTaskTable);
+    console.log("String(currentQueueId) : " , String(currentQueueId));
+    console.log("String(task.queue_id) : " , String(task.queue_id));
+    console.log("isSameQueue : " , isSameQueue);
     // A) If we’re on the queue-list page, refresh counts
     if (isQueueList) {
       loadContentReviewQueues();
     }
 
     // B) If we’re on the task table AND this assignment matches the open queue
-    if (isTaskTable && currentQueueId !== null && task.queue_id === currentQueueId) {
+    if (isTaskTable && isSameQueue ) {
       addOrUpdateTaskRow(task);
+
     }
   });
 }
