@@ -44,7 +44,7 @@
         
         /* Roboto font from the original image seems appropriate */
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f5f6fa;
         }
         
@@ -83,4 +83,5 @@
         
         .heatmap-container .hour-label {
             position: sticky;
+
         }
