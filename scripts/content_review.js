@@ -9,9 +9,9 @@
  * Handles switching from the queue list (table) to the specific task moderation list (page).
  */
 let currentQueueId = null;
-
+let currentcat = null;
  const API_BASE_URL2 = 'https://www.arta-tsg.com:3001/api';
-function showModerationTable(queueId, queueName) {
+function showModerationTable(queueId, queueName, category) {
     // 1. Hide the Queue List Table Area
     const queueListArea = document.getElementById('content-review'); 
     
@@ -21,9 +21,10 @@ function showModerationTable(queueId, queueName) {
     if (queueListArea) queueListArea.classList.add('hidden');
     if (taskTableArea) taskTableArea.classList.remove('hidden');
     currentQueueId = queueId;
+    currentcat = category;
 
     // This is where you would call the function to render the task list
-    loadPendingTasks(queueId, queueName); 
+    loadPendingTasks(queueId, queueName, category); 
     
     console.log(`Switched to task view for Queue ID: ${queueId}, Name: ${queueName}`);
 
@@ -41,12 +42,45 @@ function goBackToQueueList() {
 
     loadContentReviewQueues();
     currentQueueId = null;
+    currentcat = null;
 }
 
+
+function formatLatency(rawTime) {
+  if (!rawTime) return '—';
+  try {
+    const date = new Date(rawTime);
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+
+    const h = hours > 0 ? `${hours}h` : '';
+    const m = minutes > 0 ? `${minutes}m` : '';
+    return `${h} ${m}`.trim() || '0m';
+  } catch {
+    return 'Invalid time';
+  }
+}
+function getLatencyColor(minutes) {
+
+
+   const date = new Date(minutes);
+    const hours = date.getUTCHours();
+    const minute = date.getUTCMinutes();
+    time = hours * 60 + minute;
+
+
+  if (time < 5) return 'green';
+  if (time <= 30) return 'yellow';
+  if (time <= 60) return 'orange';
+  if (time > 60) return 'red';
+  return 'black';
+}
 
 // --- API & RENDERING FUNCTIONS ---
 
 async function loadContentReviewQueues() {
+  currentQueueId = null;
+    currentcat = null;
     // 🎯 FIX: Use the correct ID for the table body from your HTML
     const queueListBody = document.getElementById('queue-list-body');
     if (!queueListBody) {
@@ -78,12 +112,19 @@ async function loadContentReviewQueues() {
             // Assuming the server returns assigned_count for the logged-in user
             const assignedToMe = queue.assigned_to_me_count || 0; 
             
+            
+            const textColor = getLatencyColor(queue.latency);
+
+
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${queue.queue_name} (${queue.queue_type})</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${queue.category}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-${textColor}-700">${formatLatency(queue.latency)}</td>
+                
                 <td id="assigned-count-${queue.queue_id}" class="px-6 py-4 whitespace-nowrap text-base font-semibold text-center text-green-600">${assignedToMe}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     <button class="text-indigo-600 hover:text-indigo-900 focus:outline-none" 
-                            onclick="showModerationTable(${queue.queue_id}, '${queue.queue_name}')">
+                            onclick="showModerationTable(${queue.queue_id}, '${queue.queue_name}','${queue.category}')">
                         View My Tasks
                     </button>
                 </td>
@@ -129,7 +170,7 @@ function renderViolationDropdown(selectedId, contentId) {
 
 
 
-async function loadPendingTasks(queueId, queueName) {
+async function loadPendingTasks(queueId, queueName, category) {
   const container = document.getElementById('pending-moderation-list-page');
   if (!container) return;
 
@@ -186,41 +227,72 @@ async function loadPendingTasks(queueId, queueName) {
 
     // Render rows
    body.innerHTML = '';
-  tasks.forEach(task => addOrUpdateTaskRow(task));
+  tasks.forEach(task => addOrUpdateTaskRow(task, category));
 
 
   
 }
+function openModal(contentType, contentUrl) {
+  const modal = document.getElementById('content-modal');
+  const mediaContainer = document.getElementById('modal-media');
+  mediaContainer.innerHTML = '';
 
+  if (contentType === 'Image') {
+    mediaContainer.innerHTML = `<img src="${contentUrl}" alt="Preview" class="max-h-[400px] w-auto rounded">`;
+  } else if (contentType === 'Video') {
+    mediaContainer.innerHTML = `
+      <video controls class="max-h-[400px] w-auto rounded">
+        <source src="${contentUrl}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    `;
+  }
 
-function addOrUpdateTaskRow(task) {
+  modal.classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('content-modal').classList.add('hidden');
+}
+
+// Optional: wire modal buttons to task actions
+function approveModal() { /* logic */ }
+function rejectModal() { /* logic */ }
+function submitOnly() { /* logic */ }
+function submitAndNext() { /* logic */ }
+
+function addOrUpdateTaskRow(task, category) {
   const tbody = document.getElementById('task-list-body');
   const rowId = `task-${task.content_id}`;
   const existing = document.getElementById(rowId);
 
+  let contentHTML = '';
+
+  if (category === 'Image') {
+    contentHTML = `
+      <img src="${task.content}" alt="Image" class="h-16 cursor-pointer rounded"
+        onclick="openModal('Image', '${task.content}')">
+    `;
+  } else if (category === 'Video') {
+    contentHTML = `
+      <img src="assets/play-thumbnail.png" alt="Video" class="h-16 cursor-pointer rounded"
+        onclick="openModal('Video', '${task.content}')">
+    `;
+  } else {
+    contentHTML = `<span>${task.content}</span>`;
+  }
+
   const rowHTML = `
     <tr id="${rowId}">
       <td class="px-6 py-4">${task.content_id}</td>
-      <td class="px-6 py-4">${task.content}</td>
+      <td class="px-6 py-4">${contentHTML}</td>
       <td class="px-6 py-4">${new Date(task.created_at).toLocaleString()}</td>
       <td class="px-6 py-4">
         ${renderViolationDropdown(task.violation_id, task.content_id)}
       </td>
       <td class="px-6 py-4 text-center space-x-2">
-        <button
-          class="px-3 py-1 bg-green-100 text-green-800 rounded"
-          onclick="
-            approve('${task.content_id}')
-          ">
-          Approve
-        </button>
-        <button
-          class="px-3 py-1 bg-red-100 text-red-800 rounded"
-          onclick="
-            reject('${task.content_id}')
-          ">
-          Reject
-        </button>
+        <button class="px-3 py-1 bg-green-100 text-green-800 rounded" onclick="approve('${task.content_id}')">Approve</button>
+        <button class="px-3 py-1 bg-red-100 text-red-800 rounded" onclick="reject('${task.content_id}')">Reject</button>
       </td>
     </tr>
   `;
@@ -231,7 +303,6 @@ function addOrUpdateTaskRow(task) {
     tbody.insertAdjacentHTML('afterbegin', rowHTML);
   }
 }
-
 
 
 async function approve(contentId) {
@@ -338,7 +409,7 @@ function subscribeToGlobalUpdates() {
 
     // B) If we’re on the task table AND this assignment matches the open queue
     if (isTaskTable && isSameQueue ) {
-      addOrUpdateTaskRow(task);
+      addOrUpdateTaskRow(task,currentcat);
 
     }
   });

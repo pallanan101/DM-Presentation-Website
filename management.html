@@ -1,38 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiPlus OMS Moderation Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-       <link rel="stylesheet" href="styles/main.css">
-<link rel="stylesheet" href="styles/management.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/management.css">
 
 </head>
-<body class="bg-gray-100 text-gray-900"> 
+
+<body class="bg-gray-100 text-gray-900">
     <div id="app-layout">
         <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
-    
+
             <div class="flex items-center justify-start p-4 mb-6">
-                <img src="https://www.arka-designs.com/assets/img/dp.png" 
-                     alt="DigiPlus Logo" 
-                     class="w-10 h-10 object-contain min-w-[40px] text-center">
+                <img src="https://www.arka-designs.com/assets/img/dp.png" alt="DigiPlus Logo"
+                    class="w-10 h-10 object-contain min-w-[40px] text-center">
                 <h1 class="text-xl font-bold ml-2 logo-text">DigiPlus OMS</h1>
             </div>
-            
+
             <div id="nav-links">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
-                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"  ><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html" ><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html"><i
+                        class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html"><i
+                        class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#"><i
+                        class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"><i
+                        class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html"><i
+                        class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
             </div>
-            
-           <div class="mt-auto">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('settings.html', true)" data-view="settings.html">
+
+            <div class="mt-auto">
+                <div class="relative">
+                    <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                        onclick="toggleStatusDropdown()" id="status-trigger">
+                        <i class="fas fa-circle text-green-500"></i>
+                        <span class="sidebar-text ml-2">Online</span>
+                    </a>
+
+                    <!-- Dropdown (initially hidden) -->
+                    <div id="status-dropdown"
+                        class="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded shadow-lg hidden z-50">
+                        <ul class="text-sm text-gray-700">
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Online', 'green')">
+                                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Break', 'yellow')">
+                                <i class="fas fa-circle text-yellow-500 mr-2"></i> Break
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Lunch', 'orange')">
+                                <i class="fas fa-circle text-orange-500 mr-2"></i> Lunch
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Meeting', 'blue')">
+                                <i class="fas fa-circle text-blue-500 mr-2"></i> Meeting
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="setStatus('Idle', 'red')">
+                                <i class="fas fa-circle text-red-500 mr-2"></i> Idle
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Training', 'purple')">
+                                <i class="fas fa-circle text-purple-500 mr-2"></i> Training
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Offline', 'gray')">
+                                <i class="fas fa-circle text-gray-500 mr-2"></i> Offline
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                    onclick="routeTo('settings.html', true)" data-view="settings.html">
                     <i class="fas fa-cog"></i>
                     <span class="sidebar-text ml-2">Settings</span>
                 </a>
@@ -51,29 +99,33 @@
                     </button>
                     <h2 id="page-title" class="text-xl font-semibold">Management</h2>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
 
-                    <div class="relative"> 
-                        <button id="notification-button" class="hover:text-green-500 p-2 relative transition duration-300">
+                    <div class="relative">
+                        <button id="notification-button"
+                            class="hover:text-green-500 p-2 relative transition duration-300">
                             <i class="fas fa-bell text-lg"></i>
-                            <span id="notification-badge" class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
+                            <span id="notification-badge"
+                                class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
                         </button>
 
-                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
+                        <div id="notification-dropdown"
+                            class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
                             <div class="p-4 border-b font-semibold text-sm">Notifications</div>
                             <ul id="notification-list" class="max-h-80 overflow-y-auto">
                                 <li class="p-4 text-gray-500 text-sm italic">Loading...</li>
                             </ul>
-                            <div id="notification-view-all" class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
+                            <div id="notification-view-all"
+                                class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
                                 View All (Simulated History)
                             </div>
                         </div>
                     </div>
-                    
+
                     <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">
                         <i class="fas fa-moon text-lg"></i> </button>
-                    
+
                     <div class="flex items-center">
                         <div class="text-right">
                             <span class="text-xs text-gray-400 block">Welcome!</span>
@@ -86,104 +138,152 @@
 
             <div id="content-wrapper" class="">
                 <main id="content-container" class="bg-gray-100">
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-<div id="management-home" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-    <div id="card-sensitive-words" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-red-500">
-        <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
-        <h3 class="text-xl font-bold mb-2">Sensitive Words</h3>
-        <p class="text-gray-600 text-sm">Manage the platform's content filter by adding, removing, or editing prohibited terms and phrases.</p>
-    </div>
+                    <div id="management-home" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div id="card-feed-management"
+                            class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-purple-500">
+                            <i class="fas fa-newspaper text-3xl text-purple-500 mb-3"></i>
+                            <h3 class="text-xl font-bold mb-2">Front Page Management</h3>
+                            <p class="text-gray-600 text-sm">Create, edit, and publish posts that appear on the platforms front page.</p>
+                        </div> 
+                        <div id="card-gc-management"
+                            class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-yellow-500">
+                            <i class="fas fa-comments text-3xl text-yellow-500 mb-3"></i>
+                            <h3 class="text-xl font-bold mb-2">Group Chat Management</h3>
+                            <p class="text-gray-600 text-sm">Manage and organize platform categories by adding, editing, reordering, or removing sections and their associated content.</p>
+                        </div>
+                        <div id="card-sensitive-words"
+                            class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-red-500">
+                            <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-3"></i>
+                            <h3 class="text-xl font-bold mb-2">Sensitive Words</h3>
+                            <p class="text-gray-600 text-sm">Manage the platform's content filter by adding, removing,
+                                or editing prohibited terms and phrases.</p>
+                        </div>
 
-    <div id="card-staff-management" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-green-500">
-        <i class="fas fa-users-cog text-3xl text-green-500 mb-3"></i>
-        <h3 class="text-xl font-bold mb-2">Staff Management</h3>
-        <p class="text-gray-600 text-sm">Oversee and manage the accounts, access levels, and permissions for all administrators, moderators, and internal team members.</p>
-    </div>
+                        <div id="card-staff-management"
+                            class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-green-500">
+                            <i class="fas fa-users-cog text-3xl text-green-500 mb-3"></i>
+                            <h3 class="text-xl font-bold mb-2">Staff Management</h3>
+                            <p class="text-gray-600 text-sm">Oversee and manage the accounts, access levels, and
+                                permissions for all administrators, moderators, and internal team members.</p>
+                        </div>
 
-    <div id="card-notification-center" class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-blue-500">
-        <i class="fas fa-bell text-3xl text-blue-500 mb-3"></i>
-        <h3 class="text-xl font-bold mb-2">Notification Center</h3>
-        <p class="text-gray-600 text-sm">The centralized tool for managing and dispatching all system and status notifications to users.</p>
-    </div>
+                        <div id="card-notification-center"
+                            class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-blue-500">
+                            <i class="fas fa-bell text-3xl text-blue-500 mb-3"></i>
+                            <h3 class="text-xl font-bold mb-2">Notification Center</h3>
+                            <p class="text-gray-600 text-sm">The centralized tool for managing and dispatching all
+                                system and status notifications to users.</p>
+                        </div>
 
-</div>
-
-<div id="management-sub-view" class="hidden">
-
-    <div id="back-button-container" class="mb-6">
-        <button onclick="goBackToHome()" class="text-gray-600 hover:text-gray-900 font-medium flex items-center focus:outline-none">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-        </button>
-    </div>
-
-    <div id="staff-management-main-view" class="hidden"> 
-        <h2 class="text-2xl font-bold mb-6">Staff Management Portal</h2>
-
-        <div class="staff-tabs flex space-x-1 border-b border-gray-200">
-            <button id="staff-tab-status" class="px-4 py-2 text-sm font-medium border-t border-r border-l active">Staff Status</button>
-            <button id="staff-tab-queues" class="px-4 py-2 text-sm font-medium">Queue List</button>
-        </div>
-
-        <div id="staff-content-area" class="staff-area p-4 bg-white border border-t-0 rounded-b-lg shadow">
-            
-            <div id="staff-status-content-wrapper">
-                <div class="overflow-x-auto border rounded-lg shadow-lg bg-white">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th id="staff-sort-id" data-sort-key="user_id" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">ID <i class="fas fa-sort ml-1"></i></th>
-                                <th id="staff-sort-name" data-sort-key="username" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Username <i class="fas fa-sort ml-1"></i></th>
-                                <th id="staff-sort-status" data-sort-key="status" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">Status <i class="fas fa-sort ml-1"></i></th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Active</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="staff-list-body" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="6" class="px-6 py-4 text-sm text-gray-500 text-center">Loading staff data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="staff-queues-content" class="hidden">
-                <div id="all-queue-tbody">
-                <h3 class="text-xl font-semibold mb-4 text-gray-800">All Pending Queue Summary</h3>
-                    <div class="overflow-x-auto border rounded-lg bg-white shadow-sm">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Queue Name (Type)</th>
-                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pending Tasks</th>
-                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="management-queue-list-body" class="bg-white divide-y divide-gray-200">
-                                <tr><td colspan="3" class="px-6 py-4 text-sm text-gray-500 text-center">Click the Queue List tab to load data.</td></tr>
-                            </tbody>
-                        </table>
                     </div>
-                </div>
-                <div id="all-taskinqueue-tbody" class="w-full hidden">
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="sensitive-words-view" class="hidden">
-        <h2 class="text-2xl font-bold mb-6">Sensitive Words Management</h2>
-        <p class="text-gray-600">Sensitive words configuration coming soon...</p>
-    </div>
 
-    <div id="notification-center-view" class="hidden">
-        <h2 class="text-2xl font-bold mb-6">Notification Center</h2>
-        <p class="text-gray-600">Notification dashboard coming soon...</p>
-    </div>
-</div>
+                    <div id="management-sub-view" class="hidden">
+
+                        <div id="back-button-container" class="mb-6">
+                            <button onclick="goBackToHome()"
+                                class="text-gray-600 hover:text-gray-900 font-medium flex items-center focus:outline-none">
+                                <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                            </button>
+                        </div>
+
+                        <div id="staff-management-main-view" class="hidden">
+                            <h2 class="text-2xl font-bold mb-6">Staff Management Portal</h2>
+
+                            <div class="staff-tabs flex space-x-1 border-b border-gray-200">
+                                <button id="staff-tab-status"
+                                    class="px-4 py-2 text-sm font-medium border-t border-r border-l active">Staff
+                                    Status</button>
+                                <button id="staff-tab-queues" class="px-4 py-2 text-sm font-medium">Queue List</button>
+                            </div>
+
+                            <div id="staff-content-area"
+                                class="staff-area p-4 bg-white border border-t-0 rounded-b-lg shadow">
+
+                                <div id="staff-status-content-wrapper">
+                                    <div class="overflow-x-auto border rounded-lg shadow-lg bg-white">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th id="staff-sort-id" data-sort-key="user_id"
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                        ID <i class="fas fa-sort ml-1"></i></th>
+                                                    <th id="staff-sort-name" data-sort-key="username"
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                        Username <i class="fas fa-sort ml-1"></i></th>
+                                                    <th id="staff-sort-status" data-sort-key="status"
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                        Status <i class="fas fa-sort ml-1"></i></th>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Role</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Last Active</th>
+                                                    <th
+                                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="staff-list-body" class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td colspan="6" class="px-6 py-4 text-sm text-gray-500 text-center">
+                                                        Loading staff data...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div id="staff-queues-content" class="hidden">
+                                    <div id="all-queue-tbody">
+                                        <h3 class="text-xl font-semibold mb-4 text-gray-800">All Pending Queue Summary
+                                        </h3>
+                                        <div class="overflow-x-auto border rounded-lg bg-white shadow-sm">
+                                            <table class="min-w-full divide-y divide-gray-200">
+                                                <thead class="bg-gray-50">
+                                                    <tr>
+                                                        <th
+                                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Queue Name (Type)</th>
+                                                        <th
+                                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Total Pending Tasks</th>
+                                                        <th
+                                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="management-queue-list-body"
+                                                    class="bg-white divide-y divide-gray-200">
+                                                    <tr>
+                                                        <td colspan="3"
+                                                            class="px-6 py-4 text-sm text-gray-500 text-center">Click
+                                                            the Queue List tab to load data.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div id="all-taskinqueue-tbody" class="w-full hidden">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sensitive-words-view" class="hidden">
+                            <h2 class="text-2xl font-bold mb-6">Sensitive Words Management</h2>
+                            <p class="text-gray-600">Sensitive words configuration coming soon...</p>
+                        </div>
+
+                        <div id="notification-center-view" class="hidden">
+                            <h2 class="text-2xl font-bold mb-6">Notification Center</h2>
+                            <p class="text-gray-600">Notification dashboard coming soon...</p>
+                        </div>
+                    </div>
 
 
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
                 </main>
             </div>
@@ -191,7 +291,8 @@
     </div>
 
     <script src="scripts/main_websocket_handler.js"></script>
- <script src="scripts/management.js"></script>
+    <script src="scripts/management.js"></script>
     <script src="scripts/main.js"></script>
 </body>
+
 </html>

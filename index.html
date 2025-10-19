@@ -1,37 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiPlus OMS Moderation Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-       <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
 
 </head>
-<body class="bg-gray-100 text-gray-900"> 
+
+<body class="bg-gray-100 text-gray-900">
     <div id="app-layout">
         <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
-    
+
             <div class="flex items-center justify-start p-4 mb-6">
-                <img src="https://www.arka-designs.com/assets/img/dp.png" 
-                     alt="DigiPlus Logo" 
-                     class="w-10 h-10 object-contain min-w-[40px] text-center">
+                <img src="https://www.arka-designs.com/assets/img/dp.png" alt="DigiPlus Logo"
+                    class="w-10 h-10 object-contain min-w-[40px] text-center">
                 <h1 class="text-xl font-bold ml-2 logo-text">DigiPlus OMS</h1>
             </div>
-            
+
             <div id="nav-links">
-                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"  ><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html" ><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
+                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#"><i
+                        class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html"><i
+                        class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html"><i
+                        class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"><i
+                        class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html"><i
+                        class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
             </div>
-            
-           <div class="mt-auto">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('settings.html', true)" data-view="settings.html">
+
+            <div class="mt-auto">
+                <div class="relative">
+                    <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                        onclick="toggleStatusDropdown()" id="status-trigger">
+                        <i class="fas fa-circle text-green-500"></i>
+                        <span class="sidebar-text ml-2">Online</span>
+                    </a>
+
+                    <!-- Dropdown (initially hidden) -->
+                    <div id="status-dropdown"
+                        class="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded shadow-lg hidden z-50">
+                        <ul class="text-sm text-gray-700">
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Online', 'green')">
+                                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Break', 'yellow')">
+                                <i class="fas fa-circle text-yellow-500 mr-2"></i> Break
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Lunch', 'orange')">
+                                <i class="fas fa-circle text-orange-500 mr-2"></i> Lunch
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Meeting', 'blue')">
+                                <i class="fas fa-circle text-blue-500 mr-2"></i> Meeting
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="setStatus('Idle', 'red')">
+                                <i class="fas fa-circle text-red-500 mr-2"></i> Idle
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Training', 'purple')">
+                                <i class="fas fa-circle text-purple-500 mr-2"></i> Training
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Offline', 'gray')">
+                                <i class="fas fa-circle text-gray-500 mr-2"></i> Offline
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                    onclick="routeTo('settings.html', true)" data-view="settings.html">
                     <i class="fas fa-cog"></i>
                     <span class="sidebar-text ml-2">Settings</span>
                 </a>
@@ -50,29 +98,33 @@
                     </button>
                     <h2 id="page-title" class="text-xl font-semibold">Dashboard</h2>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
 
-                    <div class="relative"> 
-                        <button id="notification-button" class="hover:text-green-500 p-2 relative transition duration-300">
+                    <div class="relative">
+                        <button id="notification-button"
+                            class="hover:text-green-500 p-2 relative transition duration-300">
                             <i class="fas fa-bell text-lg"></i>
-                            <span id="notification-badge" class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
+                            <span id="notification-badge"
+                                class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
                         </button>
 
-                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
+                        <div id="notification-dropdown"
+                            class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
                             <div class="p-4 border-b font-semibold text-sm">Notifications</div>
                             <ul id="notification-list" class="max-h-80 overflow-y-auto">
                                 <li class="p-4 text-gray-500 text-sm italic">Loading...</li>
                             </ul>
-                            <div id="notification-view-all" class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
+                            <div id="notification-view-all"
+                                class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
                                 View All (Simulated History)
                             </div>
                         </div>
                     </div>
-                    
+
                     <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">
                         <i class="fas fa-moon text-lg"></i> </button>
-                    
+
                     <div class="flex items-center">
                         <div class="text-right">
                             <span class="text-xs text-gray-400 block">Welcome!</span>
@@ -85,118 +137,131 @@
 
             <div id="content-wrapper" class="">
                 <main id="content-container" class="bg-gray-100">
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-<div class="space-y-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 logo-text">Management Dashboard</h1>
-        
-        <div class="relative">
-            <button id="date-filter-button" class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
-                <i class="fas fa-calendar-alt"></i>
-                <span id="date-range-display">Last 7 Days</span>
-                <i class="fas fa-chevron-down text-xs"></i>
-            </button>
-            <div id="date-filter-dropdown" class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
-                <h4 class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">Select Date Range</h4>
-                <div class="space-y-2">
-                    <label for="start-date" class="block text-sm font-medium text-gray-600">Start Date</label>
-                    <input type="date" id="start-date" value="2025-09-19" class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="space-y-2">
-                    <label for="end-date" class="block text-sm font-medium text-gray-600">End Date</label>
-                    <input type="date" id="end-date" value="2025-09-26" class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <button id="apply-filter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
-                    Apply Filter
-                </button>
-            </div>
-        </div>
-    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold text-gray-900 logo-text">Management Dashboard</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-clock text-2xl text-orange-400"></i>
-                <h3 class="text-lg font-semibold text-gray-900">Pending Moderation</h3>
-            </div>
-            <p class="text-3xl font-bold text-gray-900">52</p>
-            <p class="text-gray-500 text-sm">No change</p>
-        </div>
-        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-check-circle text-2xl text-green-400"></i>
-                <h3 class="text-lg font-semibold text-gray-900">Total Moderated</h3>
-            </div>
-            <p class="text-3xl font-bold text-gray-900">12,895</p>
-            <p class="text-green-500 text-sm flex items-center space-x-1">
-                <i class="fas fa-arrow-up"></i>
-                <span>5% since last week</span>
-            </p>
-        </div>
-        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-bullseye text-2xl text-blue-400"></i>
-                <h3 class="text-lg font-semibold text-gray-900">Moderation Accuracy</h3>
-            </div>
-            <p class="text-3xl font-bold text-gray-900">98.7%</p>
-            <p class="text-red-500 text-sm flex items-center space-x-1">
-                <i class="fas fa-arrow-down"></i>
-                <span>0.1% since last week</span>
-            </p>
-        </div>
-        <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-stopwatch text-2xl text-purple-400"></i>
-                <h3 class="text-lg font-semibold text-gray-900">Average Handling Time</h3>
-            </div>
-            <p class="text-3xl font-bold text-gray-900">45s</p>
-            <p class="text-green-500 text-sm flex items-center space-x-1">
-                <i class="fas fa-arrow-down"></i>
-                <span>2s improvement</span>
-            </p>
-        </div>
-    </div>
+                            <div class="relative">
+                                <button id="date-filter-button"
+                                    class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span id="date-range-display">Last 7 Days</span>
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                                <div id="date-filter-dropdown"
+                                    class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
+                                    <h4 class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">
+                                        Select Date Range</h4>
+                                    <div class="space-y-2">
+                                        <label for="start-date" class="block text-sm font-medium text-gray-600">Start
+                                            Date</label>
+                                        <input type="date" id="start-date" value="2025-09-19"
+                                            class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="end-date" class="block text-sm font-medium text-gray-600">End
+                                            Date</label>
+                                        <input type="date" id="end-date" value="2025-09-26"
+                                            class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <button id="apply-filter-button"
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+                                        Apply Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div class="lg:col-span-2 bg-gray-200 p-6 rounded-xl shadow-lg">
-            <h3 class="text-xl font-bold mb-4 text-gray-900">Content Trends</h3>
-            <div style="height: 300px;">
-                <canvas id="trends-chart"></canvas>
-            </div>
-        </div>
-        <div class="bg-gray-200 p-6 flex flex-col space-y-4 rounded-xl shadow-lg">
-            <h3 class="text-xl font-bold mb-2 text-gray-900">Links</h3>
-            <div class="space-y-3">
-                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
-                    <i class="fas fa-file-alt text-blue-500 w-5 h-5"></i>
-                    <span class="font-medium text-gray-900">Playbook Rules</span>
-                </div>
-                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
-                    <i class="fas fa-bullhorn text-orange-500 w-5 h-5"></i>
-                    <span class="font-medium text-gray-900">New Policy and Updates</span>
-                </div>
-                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
-                    <i class="fas fa-lightbulb text-yellow-500 w-5 h-5"></i>
-                    <span class="font-medium text-gray-900">Suggestions</span>
-                </div>
-                <div class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
-                    <i class="fas fa-question-circle text-green-500 w-5 h-5"></i>
-                    <span class="font-medium text-gray-900">Help</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-clock text-2xl text-orange-400"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900">Pending Moderation</h3>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900">52</p>
+                                <p class="text-gray-500 text-sm">No change</p>
+                            </div>
+                            <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900">Total Moderated</h3>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900">12,895</p>
+                                <p class="text-green-500 text-sm flex items-center space-x-1">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>5% since last week</span>
+                                </p>
+                            </div>
+                            <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-bullseye text-2xl text-blue-400"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900">Moderation Accuracy</h3>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900">98.7%</p>
+                                <p class="text-red-500 text-sm flex items-center space-x-1">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>0.1% since last week</span>
+                                </p>
+                            </div>
+                            <div class="bg-gray-200 p-6 flex flex-col items-start space-y-2 rounded-xl shadow-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-stopwatch text-2xl text-purple-400"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900">Average Handling Time</h3>
+                                </div>
+                                <p class="text-3xl font-bold text-gray-900">45s</p>
+                                <p class="text-green-500 text-sm flex items-center space-x-1">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>2s improvement</span>
+                                </p>
+                            </div>
+                        </div>
 
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                            <div class="lg:col-span-2 bg-gray-200 p-6 rounded-xl shadow-lg">
+                                <h3 class="text-xl font-bold mb-4 text-gray-900">Content Trends</h3>
+                                <div style="height: 300px;">
+                                    <canvas id="trends-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="bg-gray-200 p-6 flex flex-col space-y-4 rounded-xl shadow-lg">
+                                <h3 class="text-xl font-bold mb-2 text-gray-900">Links</h3>
+                                <div class="space-y-3">
+                                    <a href="https://digiplus.sg.larksuite.com/docx/VVkjdbONyo9BmhxXEYblcBdzgRI"
+                                        class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                                        <i class="fas fa-file-alt text-blue-500 w-5 h-5"></i>
+                                        <span class="font-medium text-gray-900">Playbook Rules</span>
+                                    </a>
+                                    <a href="https://digiplus.sg.larksuite.com/wiki/OXfmwJFvuiZgjSk9waplRpaQguh"
+                                        class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                                        <i class="fas fa-bullhorn text-orange-500 w-5 h-5"></i>
+                                        <span class="font-medium text-gray-900">New Policy and Updates</span>
+                                    </a>
+                                    <div
+                                        class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                                        <i class="fas fa-lightbulb text-yellow-500 w-5 h-5"></i>
+                                        <span class="font-medium text-gray-900">Suggestions</span>
+                                    </div>
+                                    <div
+                                        class="p-3 bg-gray-200 cursor-pointer flex items-center space-x-3 border border-gray-200 rounded-lg hover:bg-gray-400 transition duration-150">
+                                        <i class="fas fa-question-circle text-green-500 w-5 h-5"></i>
+                                        <span class="font-medium text-gray-900">Help</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
                 </main>
             </div>
         </div>
     </div>
     <script src="scripts/main_websocket_handler.js"></script>
- <script src="scripts/dashboard.js"></script>
+    <script src="scripts/dashboard.js"></script>
     <script src="scripts/main.js"></script>
 </body>
+
 </html>

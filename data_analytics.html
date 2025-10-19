@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/data_analytics.css">
 
@@ -39,6 +38,47 @@
             </div>
 
             <div class="mt-auto">
+                <div class="relative">
+                    <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                        onclick="toggleStatusDropdown()" id="status-trigger">
+                        <i class="fas fa-circle text-green-500"></i>
+                        <span class="sidebar-text ml-2">Online</span>
+                    </a>
+
+                    <!-- Dropdown (initially hidden) -->
+                    <div id="status-dropdown"
+                        class="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded shadow-lg hidden z-50">
+                        <ul class="text-sm text-gray-700">
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Online', 'green')">
+                                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Break', 'yellow')">
+                                <i class="fas fa-circle text-yellow-500 mr-2"></i> Break
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Lunch', 'orange')">
+                                <i class="fas fa-circle text-orange-500 mr-2"></i> Lunch
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Meeting', 'blue')">
+                                <i class="fas fa-circle text-blue-500 mr-2"></i> Meeting
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="setStatus('Idle', 'red')">
+                                <i class="fas fa-circle text-red-500 mr-2"></i> Idle
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Training', 'purple')">
+                                <i class="fas fa-circle text-purple-500 mr-2"></i> Training
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Offline', 'gray')">
+                                <i class="fas fa-circle text-gray-500 mr-2"></i> Offline
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                     onclick="routeTo('settings.html', true)" data-view="settings.html">
                     <i class="fas fa-cog"></i>
@@ -57,7 +97,7 @@
                     <button id="sidebar-toggle" class=" hover:text-green-500 p-2 mr-4 transition duration-300">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
-                    <h2 id="page-title" class="text-xl font-semibold">Task Moderation Analytics</h2>
+                    <h2 id="page-title" class="text-xl font-semibold">Data Analytics</h2>
                 </div>
 
                 <div class="flex items-center space-x-4">
@@ -113,43 +153,44 @@
 
                                     <!-- Date Range Filter (Shared Filter) -->
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center mb-4">
-                                    <div class="relative mr-2">
-                                        <button id="date-filter-button"
-                                            class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span id="date-range-display">Last 7 Days</span>
-                                            <i class="fas fa-chevron-down text-xs"></i>
-                                        </button>
-                                        <div id="date-filter-dropdown"
-                                            class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
-                                            <h4
-                                                class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">
-                                                Select Date Range</h4>
-                                            <div class="space-y-2">
-                                                <label for="start-date"
-                                                    class="block text-sm font-medium text-gray-600">Start Date</label>
-                                                <input type="date" id="start-date" value="2025-09-19"
-                                                    class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            </div>
-                                            <div class="space-y-2">
-                                                <label for="end-date"
-                                                    class="block text-sm font-medium text-gray-600">End Date</label>
-                                                <input type="date" id="end-date" value="2025-09-26"
-                                                    class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            </div>
-                                            <button id="apply-filter-button"
-                                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
-                                                Apply Filter
+                                        <div class="relative mr-2">
+                                            <button id="date-filter-button"
+                                                class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span id="date-range-display">Last 7 Days</span>
+                                                <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
+                                            <div id="date-filter-dropdown"
+                                                class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
+                                                <h4
+                                                    class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">
+                                                    Select Date Range</h4>
+                                                <div class="space-y-2">
+                                                    <label for="start-date"
+                                                        class="block text-sm font-medium text-gray-600">Start
+                                                        Date</label>
+                                                    <input type="date" id="start-date" value="2025-09-19"
+                                                        class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label for="end-date"
+                                                        class="block text-sm font-medium text-gray-600">End Date</label>
+                                                    <input type="date" id="end-date" value="2025-09-26"
+                                                        class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                                <button id="apply-filter-button"
+                                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+                                                    Apply Filter
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    
+
                                         <button id="download-button"
                                             class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
                                             <i class="fas fa-download"></i>
-                                            <span id="date-range-display">Download</span>                                            
+                                            <span id="date-range-display">Download</span>
                                         </button>
-                                        
+
                                     </div>
                                 </div>
 
@@ -217,7 +258,7 @@
 
 
 
- <div
+                                <div
                                     class="table-container shadow-lg rounded-xl overflow-hidden border border-gray-200">
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
@@ -359,7 +400,7 @@
                                 </div>
 
 
-                                
+
                             </div>
                             <!-- END Moderation Decision Distribution Table -->
 
@@ -378,52 +419,53 @@
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                                     <h2 class="text-xl font-semibold text-gray-800 mb-4 sm:mb-0">Moderation Decision
                                         Distribution (Top Answers)</h2>
-<div class="flex flex-col sm:flex-row items-start sm:items-center mb-4">
-                                    <!-- Date Range Filter (Shared Filter) -->
-                                    <div class="relative mr-2">
-                                        <button id="date-filter-button2"
-                                            class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span id="date-range-display2">Last 7 Days</span>
-                                            <i class="fas fa-chevron-down text-xs"></i>
-                                        </button>
-                                        <div id="date-filter-dropdown2"
-                                            class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
-                                            <h4
-                                                class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">
-                                                Select Date Range</h4>
-                                            <div class="space-y-2">
-                                                <label for="start-date"
-                                                    class="block text-sm font-medium text-gray-600">Start Date</label>
-                                                <input type="date" id="start-date2" value="2025-09-19"
-                                                    class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            </div>
-                                            <div class="space-y-2">
-                                                <label for="end-date"
-                                                    class="block text-sm font-medium text-gray-600">End Date</label>
-                                                <input type="date" id="end-date2" value="2025-09-26"
-                                                    class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            </div>
-                                            <button id="apply-filter-button2"
-                                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
-                                                Apply Filter
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center mb-4">
+                                        <!-- Date Range Filter (Shared Filter) -->
+                                        <div class="relative mr-2">
+                                            <button id="date-filter-button2"
+                                                class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <span id="date-range-display2">Last 7 Days</span>
+                                                <i class="fas fa-chevron-down text-xs"></i>
                                             </button>
+                                            <div id="date-filter-dropdown2"
+                                                class="absolute rounded-xl right-0 mt-2 w-64 bg-gray-200 shadow-xl z-20 hidden p-4 space-y-3">
+                                                <h4
+                                                    class="font-bold text-base mb-2 border-b border-gray-200 text-gray-900 pb-2">
+                                                    Select Date Range</h4>
+                                                <div class="space-y-2">
+                                                    <label for="start-date"
+                                                        class="block text-sm font-medium text-gray-600">Start
+                                                        Date</label>
+                                                    <input type="date" id="start-date2" value="2025-09-19"
+                                                        class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                                <div class="space-y-2">
+                                                    <label for="end-date"
+                                                        class="block text-sm font-medium text-gray-600">End Date</label>
+                                                    <input type="date" id="end-date2" value="2025-09-26"
+                                                        class="w-full p-2 rounded-lg bg-gray-100  border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                                <button id="apply-filter-button2"
+                                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+                                                    Apply Filter
+                                                </button>
+                                            </div>
+
+
+
+
                                         </div>
-
-
-
-
-                                    </div>
-<button id="download-button"
+                                        <button id="download-button"
                                             class="bg-gray-200 p-2 rounded-lg flex items-center space-x-2 text-sm font-medium hover:bg-gray-400 text-gray-900">
                                             <i class="fas fa-download"></i>
-                                            <span id="date-range-display">Download</span>                                            
+                                            <span id="date-range-display">Download</span>
                                         </button>
-</div>
+                                    </div>
 
                                 </div>
 
-                               <div
+                                <div
                                     class="table-container shadow-lg rounded-xl overflow-hidden border border-gray-200">
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">

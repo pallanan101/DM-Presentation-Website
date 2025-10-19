@@ -1,38 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiPlus OMS Moderation Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-       <link rel="stylesheet" href="styles/main.css">
-       <link rel="stylesheet" href="styles/quality_audit.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/quality_audit.css">
 
 </head>
-<body class="bg-gray-100 text-gray-900"> 
+
+<body class="bg-gray-100 text-gray-900">
     <div id="app-layout">
         <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
-    
+
             <div class="flex items-center justify-start p-4 mb-6">
-                <img src="https://www.arka-designs.com/assets/img/dp.png" 
-                     alt="DigiPlus Logo" 
-                     class="w-10 h-10 object-contain min-w-[40px] text-center">
+                <img src="https://www.arka-designs.com/assets/img/dp.png" alt="DigiPlus Logo"
+                    class="w-10 h-10 object-contain min-w-[40px] text-center">
                 <h1 class="text-xl font-bold ml-2 logo-text">DigiPlus OMS</h1>
             </div>
-            
+
             <div id="nav-links">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html" ><i class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html" ><i class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html" ><i class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"  ><i class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
-                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#" ><i class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html"><i
+                        class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html"><i
+                        class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html"><i
+                        class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"><i
+                        class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
+                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#"><i
+                        class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
             </div>
-            
-           <div class="mt-auto">
-                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" onclick="routeTo('settings.html', true)" data-view="settings.html">
+
+            <div class="mt-auto">
+                <div class="relative">
+                    <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                        onclick="toggleStatusDropdown()" id="status-trigger">
+                        <i class="fas fa-circle text-green-500"></i>
+                        <span class="sidebar-text ml-2">Online</span>
+                    </a>
+
+                    <!-- Dropdown (initially hidden) -->
+                    <div id="status-dropdown"
+                        class="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded shadow-lg hidden z-50">
+                        <ul class="text-sm text-gray-700">
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Online', 'green')">
+                                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Break', 'yellow')">
+                                <i class="fas fa-circle text-yellow-500 mr-2"></i> Break
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Lunch', 'orange')">
+                                <i class="fas fa-circle text-orange-500 mr-2"></i> Lunch
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Meeting', 'blue')">
+                                <i class="fas fa-circle text-blue-500 mr-2"></i> Meeting
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="setStatus('Idle', 'red')">
+                                <i class="fas fa-circle text-red-500 mr-2"></i> Idle
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Training', 'purple')">
+                                <i class="fas fa-circle text-purple-500 mr-2"></i> Training
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Offline', 'gray')">
+                                <i class="fas fa-circle text-gray-500 mr-2"></i> Offline
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                    onclick="routeTo('settings.html', true)" data-view="settings.html">
                     <i class="fas fa-cog"></i>
                     <span class="sidebar-text ml-2">Settings</span>
                 </a>
@@ -51,29 +99,33 @@
                     </button>
                     <h2 id="page-title" class="text-xl font-semibold">Quality Audit</h2>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
 
-                    <div class="relative"> 
-                        <button id="notification-button" class="hover:text-green-500 p-2 relative transition duration-300">
+                    <div class="relative">
+                        <button id="notification-button"
+                            class="hover:text-green-500 p-2 relative transition duration-300">
                             <i class="fas fa-bell text-lg"></i>
-                            <span id="notification-badge" class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
+                            <span id="notification-badge"
+                                class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
                         </button>
 
-                        <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
+                        <div id="notification-dropdown"
+                            class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
                             <div class="p-4 border-b font-semibold text-sm">Notifications</div>
                             <ul id="notification-list" class="max-h-80 overflow-y-auto">
                                 <li class="p-4 text-gray-500 text-sm italic">Loading...</li>
                             </ul>
-                            <div id="notification-view-all" class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
+                            <div id="notification-view-all"
+                                class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
                                 View All (Simulated History)
                             </div>
                         </div>
                     </div>
-                    
+
                     <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">
                         <i class="fas fa-moon text-lg"></i> </button>
-                    
+
                     <div class="flex items-center">
                         <div class="text-right">
                             <span class="text-xs text-gray-400 block">Welcome!</span>
@@ -86,65 +138,144 @@
 
             <div id="content-wrapper" class="">
                 <main id="content-container" class="bg-gray-100">
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-        
-         
-  <div class="dashboard-area">
-            <div class="filter-refresh-bar">
-                <div class="filters-group">
-                    <input type="text" id="queue-name-search" class="filter-input" placeholder="Filter by Queue Name...">
-                    <select id="queue-type-filter" class="filter-select">
-                        <option value="">All Queue Types</option>
-                        <option value="Comments">Comments</option>
-                        <option value="Image">Image</option>
-                        <option value="Group Chat">Group Chat</option>
-                        <option value="Video">Video</option>
-                    </select>
-                </div>
 
-                <div class="refresh-info">
-                    <span id="manual-refresh-trigger" title="Click to refresh instantly">
-                        <span class="refresh-icon">&#x21bb;</span> Auto Refresh 
-                    </span>
-                    | Last updated: <span id="last-updated">--:--:--</span>
-                </div>
+
+                    <div class="dashboard-area">
+                        <div class="filter-refresh-bar">
+                            <div class="filters-group">
+                                <input type="text" id="queue-name-search" class="filter-input"
+                                    placeholder="Filter by Queue Name...">
+                                <select id="queue-type-filter" class="filter-select">
+                                    <option value="">All Queue Types</option>
+                                    <option value="Comments">Comments</option>
+                                    <option value="Image">Image</option>
+                                    <option value="Group Chat">Group Chat</option>
+                                    <option value="Video">Video</option>
+                                </select>
+                            </div>
+
+                            <div class="refresh-info">
+                                <span id="manual-refresh-trigger" title="Click to refresh instantly">
+                                    <span class="refresh-icon">&#x21bb;</span> Auto Refresh
+                                </span>
+                                | Last updated: <span id="last-updated">--:--:--</span>
+                            </div>
+                        </div>
+
+                        <table class="queue-table" id="qa-table">
+                            <thead>
+                                <tr>
+                                    <th data-column-index="0" class="sortable">Queue Name</th>
+                                    <th data-column-index="1" class="sortable">Queue Type</th>
+                                    <th data-column-index="2" class="sortable">Pending QA</th>
+                                    <th data-column-index="3" class="sortable">Latency</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qa-table-body">
+                                <tr data-latency-ms="8580000" data-queue-type="Comments">
+                                    <td>BP_Comment_Review</td>
+                                    <td>Comments</td>
+                                    <td>13</td>
+                                    <td><span class="latency-cell latency-red">2h 23m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="3900000" data-queue-type="Comments">
+                                    <td>GP_Comment_Review</td>
+                                    <td>Comments</td>
+                                    <td>45</td>
+                                    <td><span class="latency-cell latency-red">1h 05m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="0" data-queue-type="Comments">
+                                    <td>Salo_Comment_Review</td>
+                                    <td>Comments</td>
+                                    <td>0</td>
+                                    <td><span class="latency-cell latency-green">0m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="17700000" data-queue-type="Image">
+                                    <td>BP_Image_Review</td>
+                                    <td>Image</td>
+                                    <td>210</td>
+                                    <td><span class="latency-cell latency-red">4h 55m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="11520000" data-queue-type="Image">
+                                    <td>GP_Image_Review</td>
+                                    <td>Image</td>
+                                    <td>5</td>
+                                    <td><span class="latency-cell latency-red">3h 12m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="21660000" data-queue-type="Group Chat">
+                                    <td>BP_Chat_Review</td>
+                                    <td>Group Chat</td>
+                                    <td>78</td>
+                                    <td><span class="latency-cell latency-red">6h 01m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="6000000" data-queue-type="Group Chat">
+                                    <td>GP_Chat_Review</td>
+                                    <td>Group Chat</td>
+                                    <td>15</td>
+                                    <td><span class="latency-cell latency-red">1h 40m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="2700000" data-queue-type="Video">
+                                    <td>BP_Video_Review</td>
+                                    <td>Video</td>
+                                    <td>2</td>
+                                    <td><span class="latency-cell latency-orange">45m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="27000000" data-queue-type="Video">
+                                    <td>GP_Video_Review</td>
+                                    <td>Video</td>
+                                    <td>35</td>
+                                    <td><span class="latency-cell latency-red">7h 30m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="900000" data-queue-type="Comments">
+                                    <td>Sample_Low_Latency</td>
+                                    <td>Comments</td>
+                                    <td>5</td>
+                                    <td><span class="latency-cell latency-green">15m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                                <tr data-latency-ms="3300000" data-queue-type="Image">
+                                    <td>Sample_Med_Latency</td>
+                                    <td>Image</td>
+                                    <td>10</td>
+                                    <td><span class="latency-cell latency-orange">55m</span></td>
+                                    <td><a href="#" class="action-button">Review</a><a href="#"
+                                            class="action-button">History</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
             </div>
+            <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-            <table class="queue-table" id="qa-table">
-                <thead>
-                    <tr>
-                        <th data-column-index="0" class="sortable">Queue Name</th>
-                        <th data-column-index="1" class="sortable">Queue Type</th>
-                        <th data-column-index="2" class="sortable">Pending QA</th>
-                        <th data-column-index="3" class="sortable">Latency</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="qa-table-body">
-                    <tr data-latency-ms="8580000" data-queue-type="Comments"><td>BP_Comment_Review</td><td>Comments</td><td>13</td><td><span class="latency-cell latency-red">2h 23m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="3900000" data-queue-type="Comments"><td>GP_Comment_Review</td><td>Comments</td><td>45</td><td><span class="latency-cell latency-red">1h 05m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="0" data-queue-type="Comments"><td>Salo_Comment_Review</td><td>Comments</td><td>0</td><td><span class="latency-cell latency-green">0m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="17700000" data-queue-type="Image"><td>BP_Image_Review</td><td>Image</td><td>210</td><td><span class="latency-cell latency-red">4h 55m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="11520000" data-queue-type="Image"><td>GP_Image_Review</td><td>Image</td><td>5</td><td><span class="latency-cell latency-red">3h 12m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="21660000" data-queue-type="Group Chat"><td>BP_Chat_Review</td><td>Group Chat</td><td>78</td><td><span class="latency-cell latency-red">6h 01m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="6000000" data-queue-type="Group Chat"><td>GP_Chat_Review</td><td>Group Chat</td><td>15</td><td><span class="latency-cell latency-red">1h 40m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="2700000" data-queue-type="Video"><td>BP_Video_Review</td><td>Video</td><td>2</td><td><span class="latency-cell latency-orange">45m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="27000000" data-queue-type="Video"><td>GP_Video_Review</td><td>Video</td><td>35</td><td><span class="latency-cell latency-red">7h 30m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="900000" data-queue-type="Comments"><td>Sample_Low_Latency</td><td>Comments</td><td>5</td><td><span class="latency-cell latency-green">15m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                    <tr data-latency-ms="3300000" data-queue-type="Image"><td>Sample_Med_Latency</td><td>Image</td><td>10</td><td><span class="latency-cell latency-orange">55m</span></td><td><a href="#" class="action-button">Review</a><a href="#" class="action-button">History</a></td></tr>
-                </tbody>
-            </table>
+            </main>
         </div>
     </div>
-<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
-
-                </main>
-            </div>
-        </div>
     </div>
     <script src="scripts/main_websocket_handler.js"></script>
- <script src="scripts/quality_audit.js"></script>
+    <script src="scripts/quality_audit.js"></script>
     <script src="scripts/main.js"></script>
 </body>
+
 </html>
