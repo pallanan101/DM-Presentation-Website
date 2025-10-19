@@ -6,7 +6,24 @@
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
     const dateRangeDisplay = document.getElementById('date-range-display');
-    let trendsChart;
+
+
+    const dateFilterButton2 = document.getElementById('date-filter-button2');
+    const dateFilterDropdown2 = document.getElementById('date-filter-dropdown2');
+    const applyFilterButton2 = document.getElementById('apply-filter-button2');
+    const startDateInput2 = document.getElementById('start-date2');
+    const endDateInput2 = document.getElementById('end-date2');
+    const dateRangeDisplay2 = document.getElementById('date-range-display2');
+
+
+    const dateFilterButton3 = document.getElementById('date-filter-button3');
+    const dateFilterDropdown3 = document.getElementById('date-filter-dropdown3');
+    const applyFilterButton3 = document.getElementById('apply-filter-button3');
+    const startDateInput3 = document.getElementById('start-date3');
+    const endDateInput3 = document.getElementById('end-date3');
+    const dateRangeDisplay3 = document.getElementById('date-range-display3');
+
+    
 
     // --- THEME APPLICATION LOGIC FOR LOADED CONTENT ---
     function updateContentTheme() {
@@ -79,26 +96,41 @@
         return date.toISOString().split('T')[0];
     }
 
-    function updateDateInputs(start, end) {
-        if (startDateInput && endDateInput && dateRangeDisplay) {
-            startDateInput.value = formatDate(start);
-            endDateInput.value = formatDate(end);
-            dateRangeDisplay.textContent = `${formatDate(start)} - ${formatDate(end)}`;
+    function updateDateInputs(SDI, EDI, DRP, start, end) {
+        if (SDI && EDI && DRP) {
+            SDI.value = formatDate(start);
+            EDI.value = formatDate(end);
+            DRP.textContent = `${formatDate(start)} - ${formatDate(end)}`;
         }
     }
 
-    function initializeDateRange() {
+    function initializeDateRange(SDI, EDI   ,DRP    ) {
         const today = new Date();
         const lastWeek = new Date();
         lastWeek.setDate(today.getDate() - 7);
-        updateDateInputs(lastWeek, today);
+        updateDateInputs(SDI    ,EDI    , DRP,lastWeek, today);
     }
-    initializeDateRange();
+    initializeDateRange(startDateInput  ,endDateInput   ,dateRangeDisplay);
+    initializeDateRange(startDateInput2  ,endDateInput2   ,dateRangeDisplay2);
+    initializeDateRange(startDateInput3  ,endDateInput3   ,dateRangeDisplay3);
     
+
     if (dateFilterButton) {
         dateFilterButton.addEventListener('click', (e) => {
             e.stopPropagation();
             dateFilterDropdown.classList.toggle('hidden');
+        });
+    }
+    if (dateFilterButton2) {
+        dateFilterButton2.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dateFilterDropdown2.classList.toggle('hidden');
+        });
+    }
+    if (dateFilterButton3) {
+        dateFilterButton3.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dateFilterDropdown3.classList.toggle('hidden');
         });
     }
 
@@ -108,86 +140,21 @@
             dateFilterDropdown.classList.add('hidden');
         }
     });
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (dateFilterDropdown2 && !dateFilterDropdown2.contains(e.target) && !dateFilterButton2.contains(e.target)) {
+            dateFilterDropdown2.classList.add('hidden');
+        }
+    });
+    // Close dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (dateFilterDropdown3 && !dateFilterDropdown3.contains(e.target) && !dateFilterButton3.contains(e.target)) {
+            dateFilterDropdown3.classList.add('hidden');
+        }
+    });
 
     // --- CHART LOGIC ---
-    function renderTrendsChart() {
-        const ctx = document.getElementById('trends-chart').getContext('2d');
-        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const data = {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Moderated Content',
-                    data: [350, 410, 390, 450, 420, 500, 480],
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Incoming Volume',
-                    data: [360, 400, 420, 440, 430, 510, 490],
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        };
-
-        // Get theme colors for the chart elements
-        const themeColor = localStorage.getItem('theme') === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)';
-        const gridColor = localStorage.getItem('theme') === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { labels: { color: themeColor } },
-                    title: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: gridColor, borderColor: themeColor },
-                        ticks: { color: themeColor }
-                    },
-                    x: {
-                        grid: { color: gridColor, borderColor: themeColor },
-                        ticks: { color: themeColor }
-                    }
-                }
-            }
-        };
-
-        if (trendsChart) {
-            trendsChart.destroy();
-        }
-        trendsChart = new Chart(ctx, config);
-    }
-
-    // --- MAIN UPDATE FUNCTION ---
-    function updateDashboardData() {
-        // 1. Apply the stored theme colors to the loaded HTML content
-        updateContentTheme(); 
-        
-        // 2. Re-render chart (which uses the current theme colors)
-        renderTrendsChart();
-
-        // 3. Close date dropdown
-        if (dateFilterDropdown) {
-             dateFilterDropdown.classList.add('hidden');
-        }
-    }
-
-    // --- EVENT LISTENERS ---
-    if (applyFilterButton) {
-        applyFilterButton.addEventListener('click', updateDashboardData);
-    }
-
+  
     // This observer reacts to the main app's body class change (triggered by theme toggle) 
     // to keep the dashboard content in sync.
     const themeChangeObserver = new MutationObserver(function(mutations) {
@@ -203,4 +170,4 @@
 
 
     // Initialize the chart and theme on load (the router runs this script)
-    updateDashboardData();
+    

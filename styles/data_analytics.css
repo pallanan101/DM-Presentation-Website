@@ -22,6 +22,7 @@
             border: 1px solid #e5e7eb;
             position: sticky;
             z-index: 10;
+            font-size: 0.9rem;
         }
         
         /* Specific label cells stick in place */
@@ -42,6 +43,9 @@
         .color-3 { background-color: #3b82f6; /* Tailwind Blue-500 */ }
         .color-4 { background-color: #1e40af; /* Dark Blue */ color: white; font-weight: bold;} /* High Intensity */
         
+       
+        
+        /* Responsive adjustments for mobile */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -54,9 +58,8 @@
             }
             .heatmap-grid {
                  /* Allow heatmap to scroll horizontally on small screens */
-                width: 1500px; 
-                height: 300px;
-            }
+                
+                }
             .heatmap-container {
                 overflow-x: auto;
             }
@@ -68,13 +71,12 @@
         
         /* Fix for sticky day labels in the scrollable container */
         .heatmap-container .day-label {
-            position: absolute;
+           
             width: 50px;
             height: 100%;
             left: 0;
         }
         
         .heatmap-container .hour-label {
-            position: sticky;
-
+           
         }
