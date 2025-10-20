@@ -1,126 +1,141 @@
+/* DASHBOARD AREA */
+.dashboard-area {
+    padding: 20px 40px;
+}
 
-      
-        /* DASHBOARD AREA */
-        .dashboard-area {
-            padding: 20px 40px;
-        }
-        
-        /* Filter and Refresh Bar */
-        .filter-refresh-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+/* Filter and Refresh Bar */
+.filter-refresh-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
 
-        .filters-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+.filters-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
 
-        .filter-input, .filter-select {
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
-            font-size: 14px;
-            color: #555;
-        }
-        
-        .refresh-info {
-            font-size: 0.8em;
-            color: #777;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-        }
+.filter-input,
+.filter-select {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #555;
+}
 
-        /* Clickable Refresh Text Styling */
-        #manual-refresh-trigger {
-            color: #1a73e8;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            margin-right: 5px;
-            padding: 3px 5px;
-            border-radius: 4px;
-            transition: background-color 0.1s;
-        }
+.refresh-info {
+    font-size: 0.8em;
+    color: #777;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
 
-        #manual-refresh-trigger:hover {
-            background-color: #e6f0ff;
-        }
+/* Clickable Refresh Text Styling */
+#manual-refresh-trigger {
+    color: #1a73e8;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    transition: background-color 0.1s;
+}
 
-        .refresh-icon {
-            font-size: 1.1em;
-        }
+#manual-refresh-trigger:hover {
+    background-color: #e6f0ff;
+}
+
+.refresh-icon {
+    font-size: 1.1em;
+}
 
 
-        /* TABLE STYLING */
-        .queue-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #ffffff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            border-radius: 4px;
-            overflow: hidden;
-        }
+/* TABLE STYLING */
+.queue-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
 
-        /* Reduced padding and font size for data rows (td) */
-        .queue-table th, .queue-table td {
-            padding: 10px 20px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            vertical-align: middle;
-            font-size: 0.875em;
-        }
+/* Reduced padding and font size for data rows (td) */
+.queue-table th,
+.queue-table td {
+    padding: 10px 20px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    font-size: 0.875em;
+}
 
-        .queue-table th {
-            background-color: #fafafa;
-            color: #555;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8em;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        /* Sort indicators */
-        .sort-asc::after { content: ' ▲'; font-size: 0.8em; }
-        .sort-desc::after { content: ' ▼'; font-size: 0.8em; }
-        
-        .latency-cell {
-            font-weight: 600;
-            padding: 0;
-            display: inline;
-            font-size: 0.9em;
-            border: none;
-            background-color: transparent !important;
-        }
-        
-        .latency-green { color: #008000; }
-        .latency-orange { color: #ff8c00; }
-        .latency-red { color: #cc0000; }
-        
-        /* ACTION BUTTONS size and padding reduced */
-        .action-button {
-            padding: 4px 8px;
-            margin-right: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fcfcfc;
-            color: #1a73e8;
-            font-size: 0.85em;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.2s, border-color 0.2s;
-            display: inline-block;
-            text-align: center;
-        }
+.queue-table th {
+    background-color: #fafafa;
+    color: #555;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    cursor: pointer;
+    user-select: none;
+}
 
-        .action-button:hover {
-            background-color: #e6f0ff;
-            border-color: #1a73e8;
-        }
+/* Sort indicators */
+.sort-asc::after {
+    content: ' ▲';
+    font-size: 0.8em;
+}
+
+.sort-desc::after {
+    content: ' ▼';
+    font-size: 0.8em;
+}
+
+.latency-cell {
+    font-weight: 600;
+    padding: 0;
+    display: inline;
+    font-size: 0.9em;
+    border: none;
+    background-color: transparent !important;
+}
+
+.latency-green {
+    color: #008000;
+}
+
+.latency-orange {
+    color: #ff8c00;
+}
+
+.latency-red {
+    color: #cc0000;
+}
+
+/* ACTION BUTTONS size and padding reduced */
+.action-button {
+    padding: 4px 8px;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fcfcfc;
+    color: #1a73e8;
+    font-size: 0.85em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: inline-block;
+    text-align: center;
+}
+
+.action-button:hover {
+    background-color: #e6f0ff;
+    border-color: #1a73e8;
+}

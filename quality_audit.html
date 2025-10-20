@@ -142,134 +142,115 @@
 
 
 
-                    <div class="dashboard-area">
-                        <div class="filter-refresh-bar">
+
+                    <div id="content-review" class="w-full">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Content Quality Audit</h2>
+ <div class="filter-refresh-bar">
                             <div class="filters-group">
                                 <input type="text" id="queue-name-search" class="filter-input"
                                     placeholder="Filter by Queue Name...">
                                 <select id="queue-type-filter" class="filter-select">
                                     <option value="">All Queue Types</option>
-                                    <option value="Comments">Comments</option>
+                                    <option value="Comment">Comment</option>
                                     <option value="Image">Image</option>
-                                    <option value="Group Chat">Group Chat</option>
+                                    <option value="Chat">Chat</option>
                                     <option value="Video">Video</option>
                                 </select>
                             </div>
 
                             <div class="refresh-info">
                                 <span id="manual-refresh-trigger" title="Click to refresh instantly">
-                                    <span class="refresh-icon">&#x21bb;</span> Auto Refresh
+                                    <span class="refresh-icon">&#x21bb;</span>Refresh
                                 </span>
                                 | Last updated: <span id="last-updated">--:--:--</span>
                             </div>
                         </div>
-
-                        <table class="queue-table" id="qa-table">
-                            <thead>
-                                <tr>
-                                    <th data-column-index="0" class="sortable">Queue Name</th>
-                                    <th data-column-index="1" class="sortable">Queue Type</th>
-                                    <th data-column-index="2" class="sortable">Pending QA</th>
-                                    <th data-column-index="3" class="sortable">Latency</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="qa-table-body">
-                                <tr data-latency-ms="8580000" data-queue-type="Comments">
-                                    <td>BP_Comment_Review</td>
-                                    <td>Comments</td>
-                                    <td>13</td>
-                                    <td><span class="latency-cell latency-red">2h 23m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="3900000" data-queue-type="Comments">
-                                    <td>GP_Comment_Review</td>
-                                    <td>Comments</td>
-                                    <td>45</td>
-                                    <td><span class="latency-cell latency-red">1h 05m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="0" data-queue-type="Comments">
-                                    <td>Salo_Comment_Review</td>
-                                    <td>Comments</td>
-                                    <td>0</td>
-                                    <td><span class="latency-cell latency-green">0m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="17700000" data-queue-type="Image">
-                                    <td>BP_Image_Review</td>
-                                    <td>Image</td>
-                                    <td>210</td>
-                                    <td><span class="latency-cell latency-red">4h 55m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="11520000" data-queue-type="Image">
-                                    <td>GP_Image_Review</td>
-                                    <td>Image</td>
-                                    <td>5</td>
-                                    <td><span class="latency-cell latency-red">3h 12m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="21660000" data-queue-type="Group Chat">
-                                    <td>BP_Chat_Review</td>
-                                    <td>Group Chat</td>
-                                    <td>78</td>
-                                    <td><span class="latency-cell latency-red">6h 01m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="6000000" data-queue-type="Group Chat">
-                                    <td>GP_Chat_Review</td>
-                                    <td>Group Chat</td>
-                                    <td>15</td>
-                                    <td><span class="latency-cell latency-red">1h 40m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="2700000" data-queue-type="Video">
-                                    <td>BP_Video_Review</td>
-                                    <td>Video</td>
-                                    <td>2</td>
-                                    <td><span class="latency-cell latency-orange">45m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="27000000" data-queue-type="Video">
-                                    <td>GP_Video_Review</td>
-                                    <td>Video</td>
-                                    <td>35</td>
-                                    <td><span class="latency-cell latency-red">7h 30m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="900000" data-queue-type="Comments">
-                                    <td>Sample_Low_Latency</td>
-                                    <td>Comments</td>
-                                    <td>5</td>
-                                    <td><span class="latency-cell latency-green">15m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                                <tr data-latency-ms="3300000" data-queue-type="Image">
-                                    <td>Sample_Med_Latency</td>
-                                    <td>Image</td>
-                                    <td>10</td>
-                                    <td><span class="latency-cell latency-orange">55m</span></td>
-                                    <td><a href="#" class="action-button">Review</a><a href="#"
-                                            class="action-button">History</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto border rounded-lg bg-white shadow-lg">
+                            <table id="c-table" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Queue Name</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Queue Type</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Latency</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-medium text-green-500 uppercase tracking-wider">
+                                            Pending QA</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queue-list-body" class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-sm text-gray-500 text-center">Loading
+                                            queues...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-            </div>
-            <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 
-            </main>
+                    <div id="pending-moderation-list-page" class="w-full hidden">
+                    </div>
+
+                    <div id="content-modal"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div
+                            class="bg-white rounded-lg shadow-lg max-w-5xl w-full p-6 relative flex flex-col md:flex-row gap-6">
+                            <!-- Close Button -->
+                            <button onclick="closeModal()"
+                                class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+
+                            <!-- Left Column: Image or Video -->
+                            <div class="flex-shrink-0 w-full md:w-1/2 flex items-center justify-center">
+                                <div class="max-h-[700px] max-w-[100%] overflow-hidden rounded border border-gray-200">
+                                    <div id="modal-media"
+                                        class="w-full h-full flex items-center justify-center bg-gray-100">
+                                        <!-- Dynamic media goes here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Details + Buttons -->
+                            <div class="w-full md:w-1/2 flex flex-col justify-between">
+                                <div class="space-y-2 text-sm text-gray-800">
+                                    <div><strong>Account ID:</strong> 123456</div>
+                                    <div><strong>Account Name:</strong> @applelover</div>
+                                    <div><strong>Time Created:</strong> 2025-10-19 14:32</div>
+                                    <hr class="my-2">
+                                    <div><strong>Report ID:</strong> RPT-98765</div>
+                                    <div><strong>Reported Violation:</strong> Inappropriate content</div>
+                                    <div><strong>Caption:</strong> “This apple is too juicy 🍎”</div>
+                                </div>
+                                <div>
+                                    <div class="flex flex-col space-y-2 mt-6">
+                                        <!-- Top row: Approve + Reject (each 50% width) -->
+                                        <div class="flex w-full space-x-2">
+                                            <button class="flex-1 px-4 py-2 bg-green-600 text-white rounded"
+                                                onclick="approveModal()">Approve</button>
+                                            <button class="flex-1 px-4 py-2 bg-red-600 text-white rounded"
+                                                onclick="rejectModal()">Reject</button>
+                                        </div>
+
+                                        <!-- Stacked buttons below -->
+                                        <button class="px-4 py-2 bg-gray-300 text-gray-800 rounded w-full">Submit
+                                            Only</button>
+                                        <button class="px-4 py-2 bg-blue-600 text-white rounded w-full">Submit and
+                                            Next</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+                </main>
         </div>
     </div>
     </div>

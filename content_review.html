@@ -147,9 +147,28 @@
 
                     <div id="content-review" class="w-full">
                         <h2 class="text-2xl font-bold text-gray-800 mb-6">Moderation Queues</h2>
+ <div class="filter-refresh-bar">
+                            <div class="filters-group">
+                                <input type="text" id="queue-name-search" class="filter-input"
+                                    placeholder="Filter by Queue Name...">
+                                <select id="queue-type-filter" class="filter-select">
+                                    <option value="">All Queue Types</option>
+                                    <option value="Comment">Comment</option>
+                                    <option value="Image">Image</option>
+                                    <option value="Chat">Chat</option>
+                                    <option value="Video">Video</option>
+                                </select>
+                            </div>
 
+                            <div class="refresh-info">
+                                <span id="manual-refresh-trigger" title="Click to refresh instantly">
+                                    <span class="refresh-icon">&#x21bb;</span>Refresh
+                                </span>
+                                | Last updated: <span id="last-updated">--:--:--</span>
+                            </div>
+                        </div>
                         <div class="overflow-x-auto border rounded-lg bg-white shadow-lg">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <table id="c-table" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
