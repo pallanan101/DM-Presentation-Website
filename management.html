@@ -16,6 +16,9 @@
 
 <body class="bg-gray-100 text-gray-900">
     <div id="app-layout">
+        <div id="popup-notification-container" style="position: fixed; top: 7rem; right: 1rem; z-index: 50;"
+            class="space-y-2">
+        </div>
         <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
 
             <div class="flex items-center justify-start p-4 mb-6">
@@ -102,25 +105,32 @@
 
                 <div class="flex items-center space-x-4">
 
-                    <div class="relative">
-                        <button id="notification-button"
-                            class="hover:text-green-500 p-2 relative transition duration-300">
-                            <i class="fas fa-bell text-lg"></i>
-                            <span id="notification-badge"
-                                class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
+                    <div id="notification-bell-container" class="relative">
+                        <button id="notification-icon"
+                            class="p-2 rounded-full hover:bg-gray-100 transition duration-150">
+                            <i class="fas fa-bell text-xl text-gray-600"></i>
                         </button>
+                        <span id="notification-badge"
+                            class="absolute top-0 right-0 inline-flex items-center justify-center 
+                                                            px-2 py-1 text-xs font-bold leading-none text-red-100 transform 
+                                                            translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">
+                            0
+                        </span>
 
                         <div id="notification-dropdown"
-                            class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
-                            <div class="p-4 border-b font-semibold text-sm">Notifications</div>
-                            <ul id="notification-list" class="max-h-80 overflow-y-auto">
-                                <li class="p-4 text-gray-500 text-sm italic">Loading...</li>
-                            </ul>
-                            <div id="notification-view-all"
-                                class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
-                                View All (Simulated History)
+                            class="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-20 hidden">
+                            <div class="p-4 border-b">
+                                <h4 class="font-semibold text-gray-800">Recent Notifications</h4>
+                            </div>
+                            <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <div class="p-4 text-center text-gray-500 text-sm">Loading...</div>
+                            </div>
+                            <div class="p-2 text-center border-t bg-gray-50">
+                                <a href="management.html?view=notification-center-card"
+                                    class="text-xs text-blue-600 hover:text-blue-800">Go to Notification Center</a>
                             </div>
                         </div>
+
                     </div>
 
                     <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">
@@ -145,13 +155,15 @@
                             class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-purple-500">
                             <i class="fas fa-newspaper text-3xl text-purple-500 mb-3"></i>
                             <h3 class="text-xl font-bold mb-2">Front Page Management</h3>
-                            <p class="text-gray-600 text-sm">Create, edit, and publish posts that appear on the platforms front page.</p>
-                        </div> 
+                            <p class="text-gray-600 text-sm">Create, edit, and publish posts that appear on the
+                                platforms front page.</p>
+                        </div>
                         <div id="card-gc-management"
                             class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-yellow-500">
                             <i class="fas fa-comments text-3xl text-yellow-500 mb-3"></i>
                             <h3 class="text-xl font-bold mb-2">Group Chat Management</h3>
-                            <p class="text-gray-600 text-sm">Manage and organize platform categories by adding, editing, reordering, or removing sections and their associated content.</p>
+                            <p class="text-gray-600 text-sm">Manage and organize platform categories by adding, editing,
+                                reordering, or removing sections and their associated content.</p>
                         </div>
                         <div id="card-sensitive-words"
                             class="management-card bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border-t-4 border-red-500">
@@ -278,8 +290,297 @@
 
                         <div id="notification-center-view" class="hidden">
                             <h2 class="text-2xl font-bold mb-6">Notification Center</h2>
-                            <p class="text-gray-600">Notification dashboard coming soon...</p>
+
+                            <div class="border-b border-gray-200">
+                                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                    <a href="#" id="tab-list-history"
+                                        onclick="switchNotificationTab('history'); return false;"
+                                        class="tab-link-notification border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                                        aria-current="page">
+                                        Notification History
+                                    </a>
+                                    <a href="#" id="tab-send-new" onclick="switchNotificationTab('send'); return false;"
+                                        class="tab-link-notification border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                                        Send New Notification
+                                    </a>
+                                    <a href="#" id="tab-system-config"
+                                        onclick="switchNotificationTab('system'); return false;"
+                                        class="tab-link-notification border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                                        System Notifications (WIP)
+                                    </a>
+                                </nav>
+                            </div>
+
+                            <div id="notification-tab-content" class="mt-6">
+
+                                <div id="notification-history-tab"
+                                    class="tab-content-notification bg-white p-6 rounded-lg shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4">Past Notifications List</h3>
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Timestamp</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Sender</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Type</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                                        Message</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="notification-list-body"
+                                                class="bg-white divide-y divide-gray-200">
+                                                <tr>
+                                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Loading
+                                                        notifications...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div id="notification-send-tab"
+                                    class="tab-content-notification hidden bg-white p-6 rounded-lg shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4">Send Global Notification</h3>
+                                    <div>
+                                        <div class="mb-4">
+                                            <label for="notification-message"
+                                                class="block text-sm font-medium text-gray-700">Message</label>
+                                            <textarea id="notification-message" rows="3" required
+                                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                                        </div>
+                                        <div class="mb-6">
+                                            <label for="notification-type"
+                                                class="block text-sm font-medium text-gray-700">Type</label>
+                                            <select id="notification-type" required
+                                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+                                                <option value="info">Info</option>
+                                                <option value="warning">Warning</option>
+                                                <option value="error">Error</option>
+                                                <option value="system">System</option>
+                                            </select>
+                                        </div>
+                                        <button type="button" id="send-notification-btn"
+                                            onclick="sendNotification(this);"
+                                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
+                                            Send & Broadcast
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="notification-system-tab"
+                                    class="tab-content-notification hidden bg-white p-6 rounded-lg shadow-lg">
+                                    <h3 class="text-xl font-semibold mb-4">System Notification Configuration</h3>
+                                    <p class="text-gray-600">This section is a placeholder for future system-wide alert
+                                        configuration.</p>
+                                </div>
+
+                            </div>
                         </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        <div id="feed-management-view" class="hidden">
+                            <h2 class="text-2xl font-bold mb-6">Front Page Management</h2>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Total Live Content</p>
+                                    <p class="text-3xl font-bold text-gray-900 mt-1">1,450,210</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Today's New Content</p>
+                                    <p class="text-3xl font-bold text-green-600 mt-1">12,500</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Content Flagged</p>
+                                    <p class="text-3xl font-bold text-red-600 mt-1">320</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
+                                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Content Review & Feature Control
+                                </h3>
+
+                                <div class="flex space-x-4 mb-4">
+                                    <input type="text" placeholder="Search by Content ID or User"
+                                        class="flex-grow p-2 border border-gray-300 rounded-lg">
+                                    <select class="p-2 border border-gray-300 rounded-lg">
+                                        <option>Filter by Status: All</option>
+                                        <option>Featured</option>
+                                        <option>Pending Review</option>
+                                        <option>Removed</option>
+                                    </select>
+                                </div>
+
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    ID</th>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Creator</th>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Type</th>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Flags</th>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Status</th>
+                                                <th
+                                                    class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1001</td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">User_Alpha
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Video</td>
+                                                <td
+                                                    class="px-4 py-2 whitespace-nowrap text-sm text-red-600 font-semibold">
+                                                    5</td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm"><span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Featured</span>
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium"><button
+                                                        class="text-indigo-600 hover:text-indigo-900">Review</button>
+                                                </td>
+                                            </tr>
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">1002</td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">User_Beta
+                                                </td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Image</td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">0</td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm"><span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending
+                                                        Review</span></td>
+                                                <td class="px-4 py-2 whitespace-nowrap text-sm font-medium"><button
+                                                        class="text-indigo-600 hover:text-indigo-900">Review</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="group-chat-management-view" class="hidden">
+                            <h2 class="text-2xl font-bold mb-6">Group Chat Management</h2>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Active Group Chats</p>
+                                    <p class="text-3xl font-bold text-gray-900 mt-1">45,800</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Messages Analyzed (24H)</p>
+                                    <p class="text-3xl font-bold text-blue-600 mt-1">5.2 Million</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-lg shadow-lg">
+                                    <p class="text-sm font-medium text-gray-500">Automated Bans (24H)</p>
+                                    <p class="text-3xl font-bold text-red-600 mt-1">450</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
+                                <h3 class="text-xl font-semibold mb-4 border-b pb-2">Real-time Chat Monitoring Log</h3>
+
+                                <div class="flex space-x-4 mb-4">
+                                    <input type="text" placeholder="Search by Group ID or User ID"
+                                        class="flex-grow p-2 border border-gray-300 rounded-lg">
+                                    <select class="p-2 border border-gray-300 rounded-lg">
+                                        <option>Filter by Flag Level: All</option>
+                                        <option>Critical (L4)</option>
+                                        <option>High (L3)</option>
+                                        <option>Medium (L2)</option>
+                                    </select>
+                                </div>
+
+                                <div
+                                    class="max-h-96 overflow-y-scroll border border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50">
+                                    <div class="p-3 bg-red-50 rounded-lg border border-red-200">
+                                        <div
+                                            class="flex justify-between items-center text-xs text-red-700 font-semibold">
+                                            <span>[L4 CRITICAL] Group ID: 4501 / User: Hacker_XYZ</span>
+                                            <span>2025-10-20 18:25:01</span>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-800">"We need to meet up now and plan the..."
+                                            <i class="fas fa-exclamation-circle ml-2"></i></p>
+                                        <div class="mt-2 text-right">
+                                            <button class="text-xs text-red-600 hover:text-red-900 font-medium">View
+                                                Thread / Ban</button>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <div
+                                            class="flex justify-between items-center text-xs text-yellow-700 font-semibold">
+                                            <span>[L2 MEDIUM] Group ID: 9002 / User: User_Delta</span>
+                                            <span>2025-10-20 18:24:45</span>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-800">"This guy is a scammer, don't trust him!"
+                                        </p>
+                                    </div>
+                                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                        <div
+                                            class="flex justify-between items-center text-xs text-blue-700 font-semibold">
+                                            <span>[L1 LOW] Group ID: 1054 / User: NormalUser_12</span>
+                                            <span>2025-10-20 18:24:30</span>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-800">"Hey, anyone know the answer to Q4 on the
+                                            form?"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     </div>
 
 

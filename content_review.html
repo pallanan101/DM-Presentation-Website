@@ -16,6 +16,10 @@
 
 <body class="bg-gray-100 text-gray-900">
     <div id="app-layout">
+        <div id="popup-notification-container" 
+    style="position: fixed; top: 7rem; right: 1rem; z-index: 50;" 
+    class="space-y-2">
+    </div>
         <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
 
             <div class="flex items-center justify-start p-4 mb-6">
@@ -104,25 +108,29 @@
 
                 <div class="flex items-center space-x-4">
 
-                    <div class="relative">
-                        <button id="notification-button"
-                            class="hover:text-green-500 p-2 relative transition duration-300">
-                            <i class="fas fa-bell text-lg"></i>
-                            <span id="notification-badge"
-                                class="absolute top-1 right-1 h-4 w-4 text-xs flex items-center justify-center bg-red-500 rounded-full text-white border border-white hidden"></span>
+                    <div id="notification-bell-container" class="relative">
+                        <button id="notification-icon" class="p-2 rounded-full hover:bg-gray-100 transition duration-150">
+                            <i class="fas fa-bell text-xl text-gray-600"></i>
                         </button>
-
-                        <div id="notification-dropdown"
-                            class="absolute right-0 mt-2 w-80 shadow-2xl rounded-lg bg-white border border-gray-200 hidden z-50 transition duration-150">
-                            <div class="p-4 border-b font-semibold text-sm">Notifications</div>
-                            <ul id="notification-list" class="max-h-80 overflow-y-auto">
-                                <li class="p-4 text-gray-500 text-sm italic">Loading...</li>
-                            </ul>
-                            <div id="notification-view-all"
-                                class="p-2 border-t text-center text-sm text-green-600 cursor-pointer hover:bg-gray-50">
-                                View All (Simulated History)
+                        <span id="notification-badge" class="absolute top-0 right-0 inline-flex items-center justify-center 
+                                                            px-2 py-1 text-xs font-bold leading-none text-red-100 transform 
+                                                            translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">
+                            0
+                        </span>
+                        
+                        <div id="notification-dropdown" 
+                            class="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-20 hidden">
+                            <div class="p-4 border-b">
+                                <h4 class="font-semibold text-gray-800">Recent Notifications</h4>
+                            </div>
+                            <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <div class="p-4 text-center text-gray-500 text-sm">Loading...</div>
+                            </div>
+                            <div class="p-2 text-center border-t bg-gray-50">
+                                <a href="management.html?view=notification-center-card" class="text-xs text-blue-600 hover:text-blue-800">Go to Notification Center</a>
                             </div>
                         </div>
+                        
                     </div>
 
                     <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">

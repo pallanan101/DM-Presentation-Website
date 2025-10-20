@@ -429,9 +429,42 @@ function renderStaffTable() {
     });
 }
 
-function renderStaffStatusContent() {
-    fetchStaffDataAndRender();
+
+
+function switchNotificationTab(tabName) {
+    // 1. Deactivate all tabs and hide all content
+    document.querySelectorAll('.tab-link-notification').forEach(tab => {
+        tab.classList.remove('border-blue-500', 'text-blue-600', 'font-semibold');
+        tab.classList.add('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+    });
+    document.querySelectorAll('.tab-content-notification').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    // 2. Activate the selected tab
+    let tabLink, tabContent;
+    
+    if (tabName === 'history') {
+        tabLink = document.getElementById('tab-list-history');
+        tabContent = document.getElementById('notification-history-tab');
+        fetchNotificationsAndRender(); // Fetch data when switching to history
+    } else if (tabName === 'send') {
+        tabLink = document.getElementById('tab-send-new');
+        tabContent = document.getElementById('notification-send-tab');
+    } else if (tabName === 'system') {
+        tabLink = document.getElementById('tab-system-config');
+        tabContent = document.getElementById('notification-system-tab');
+    }
+
+
+    if (tabLink && tabContent) {
+        tabLink.classList.add('border-blue-500', 'text-blue-600', 'font-semibold');
+        tabLink.classList.remove('border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700');
+        tabContent.classList.remove('hidden');
+    }
 }
+
+switchNotificationTab('history')
 
 async function fetchQueueListSummary() {
     const body = document.getElementById('management-queue-list-body');
@@ -486,22 +519,52 @@ async function fetchQueueListSummary() {
 // --- MAIN VIEW LOGIC ---
 
 function renderSubView(viewId) {
+    // Existing Views
     const staffManagementMainView = document.getElementById('staff-management-main-view');
     const sensitiveWordsView = document.getElementById('sensitive-words-view');
     const notificationCenterView = document.getElementById('notification-center-view');
-    
-    [staffManagementMainView, sensitiveWordsView, notificationCenterView].forEach(view => {
-         if(view) view.classList.add('hidden');
+
+    // NEW Views
+    const feedManagementView = document.getElementById('feed-management-view');
+    const groupChatManagementView = document.getElementById('group-chat-management-view');
+
+
+    // 1. Hide ALL views
+    [staffManagementMainView, sensitiveWordsView, notificationCenterView, feedManagementView, groupChatManagementView].forEach(view => {
+        if(view) view.classList.add('hidden');
     });
-    
+
+    // 2. Show the requested view
     if (viewId === 'card-staff-management') {
         if(staffManagementMainView) staffManagementMainView.classList.remove('hidden');
+        // Assuming renderStaffManagement is your function to fetch/display staff data
         renderStaffManagement(); 
     } else if (viewId === 'card-sensitive-words') {
         if(sensitiveWordsView) sensitiveWordsView.classList.remove('hidden');
     } else if (viewId === 'card-notification-center') {
         if(notificationCenterView) notificationCenterView.classList.remove('hidden');
+        // Assuming renderNotificationCenter initializes the notification tabs
+        renderNotificationCenter(); 
+    } 
+    // NEW Views
+    else if (viewId === 'card-feed-management') {
+        if(feedManagementView) feedManagementView.classList.remove('hidden');
+        console.log('Front Page Management View initialized.');
+    } else if (viewId === 'card-gc-management') {
+        if(groupChatManagementView) groupChatManagementView.classList.remove('hidden');
+        console.log('Group Chat Management View initialized.');
     }
+}
+
+function renderNotificationCenter() {
+    const notificationView = document.getElementById('notification-center-view');
+    if (!notificationView) return;
+
+    // 1. Show the view
+    notificationView.classList.remove('hidden');
+
+    // 2. Initialize Tab: Default to the 'history' tab
+    switchNotificationTab('history');
 }
 
 function renderStaffManagement() { 
@@ -515,8 +578,7 @@ function renderStaffManagement() {
         return;
     }
 
-    renderStaffStatusContent(); 
-    
+    fetchStaffDataAndRender();
     staffTabStatus.onclick = () => {
         staffTabQueues.classList.remove('active');
         staffTabStatus.classList.add('active');
@@ -535,6 +597,108 @@ function renderStaffManagement() {
     };
 }
 
+
+async function sendNotification(sender) {
+    const message = document.getElementById('notification-message').value.trim();
+    const type = document.getElementById('notification-type').value;
+
+    if (!message) {
+        alert('Please enter a message.');
+        return;
+    }
+
+    const originalBtnText = sender.textContent;
+    sender.textContent = 'Sending...';
+    sender.disabled = true;
+
+    const token = localStorage.getItem('authToken');
+    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/notifications/send`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ message, type })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Notification sent and broadcasted successfully!');
+            document.getElementById('notification-message').value = ''; // Clear message field
+
+            // Switch to history tab to show the new notification immediately
+            switchNotificationTab('history');
+        } else {
+            alert(`Failed to send notification: ${data.message || 'Server error'}`);
+        }
+
+    } catch (error) {
+        console.error('Error sending notification:', error);
+        alert('An unexpected error occurred while sending the notification. Check console for details.');
+    } finally {
+        sender.textContent = originalBtnText;
+        sender.disabled = false;
+    }
+}
+
+
+
+/**
+ * Fetches the list of past notifications and renders them.
+ */
+async function fetchNotificationsAndRender() {
+    const body = document.getElementById('notification-list-body');
+    if (!body) return;
+
+    body.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Fetching notifications...</td></tr>';
+
+    const token = localStorage.getItem('authToken');
+    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/notifications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const { success, notifications, message } = await response.json();
+
+        if (!success) {
+            body.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error: ${message || 'Could not load notifications'}</td></tr>`;
+            return;
+        }
+
+        if (notifications.length === 0) {
+            body.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No past notifications found.</td></tr>`;
+            return;
+        }
+
+        // Render rows
+        body.innerHTML = notifications.map(n => {
+            const date = new Date(n.created_at).toLocaleString();
+
+            let typeColor = 'text-gray-600';
+            if (n.type === 'info') typeColor = 'text-blue-600';
+            if (n.type === 'warning') typeColor = 'text-yellow-600';
+            if (n.type === 'error') typeColor = 'text-red-600';
+
+            return `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${n.sender_username}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${typeColor}">${n.type.toUpperCase()}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 max-w-lg overflow-hidden text-ellipsis">${n.message}</td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        body.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">An error occurred while fetching data.</td></tr>`;
+    }
+}
 
 // --- GLOBAL WS INTEGRATION ---
 

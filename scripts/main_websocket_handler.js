@@ -4,9 +4,9 @@ const GLOBAL_WS_URL = 'wss://www.arta-tsg.com:3001';
 let globalWs = null;
 let statusUpdateCallbacks = [];
 const taskAssignedCallbacks = [];
-
+const notificationCallbacks = [];
 // 💡 NEW: Flag to stop reconnection attempts after a manual logout
-let isExplicitlyLoggingOut = false; 
+let isExplicitlyLoggingOut = false;
 
 
 // --- HEARTBEAT CONFIGURATION ---
@@ -26,7 +26,7 @@ function startHeartbeat() {
         if (globalWs && globalWs.readyState === WebSocket.OPEN) {
             // Send the message the server's Watchdog is waiting for
             globalWs.send(JSON.stringify({ type: 'heartbeat' }));
-             console.log('❤️ Heartbeat sent.'); // Uncomment for debugging
+            console.log('❤️ Heartbeat sent.'); // Uncomment for debugging
         } else {
             // If the connection is not open, stop trying to send heartbeats
             clearInterval(heartbeatInterval);
@@ -47,7 +47,7 @@ function sendExplicitLogoutSignal() {
         globalWs.send(JSON.stringify({ type: 'logout' }));
         console.log('👋 Explicit logout signal sent.');
         // Set the flag to prevent the onclose handler from trying to reconnect
-        isExplicitlyLoggingOut = true; 
+        isExplicitlyLoggingOut = true;
     }
 }
 
@@ -60,15 +60,20 @@ function sendExplicitLogoutSignal() {
 //     }
 // };
 
+window.subscribeToNotifications = function (callback) {
+    if (typeof callback === 'function') {
+        notificationCallbacks.push(callback);
+    }
+};
 
-window.subscribeToStatusUpdates = function(callback) {
+window.subscribeToStatusUpdates = function (callback) {
     if (!statusUpdateCallbacks.includes(callback)) {
         statusUpdateCallbacks.push(callback);
     }
 };
 
 window.subscribeToTaskAssignments = cb => {
-  taskAssignedCallbacks.push(cb);
+    taskAssignedCallbacks.push(cb);
 };
 
 // /**
@@ -101,31 +106,36 @@ function setupGlobalWebSocket() {
     if (!token) return;
 
     if (globalWs && globalWs.readyState === WebSocket.OPEN) return;
-    
-     isExplicitlyLoggingOut = false;
+
+    isExplicitlyLoggingOut = false;
     globalWs = new WebSocket(`${GLOBAL_WS_URL}/?token=${token}`);
 
     globalWs.onopen = () => {
         console.log('Global WebSocket connected. Online status initialized.');
         // 🎯 CRITICAL EDIT: START THE HEARTBEAT ON SUCCESSFUL CONNECTION
-        startHeartbeat(); 
+        startHeartbeat();
     };
 
     globalWs.onmessage = (event) => {
         let msg;
         try {
-             msg = JSON.parse(event.data);
-            
+            msg = JSON.parse(event.data);
+
             if (msg.type === 'staff_status_update') {
                 statusUpdateCallbacks.forEach(callback => callback(msg));
 
-             
+
 
             }
             if (msg.type === 'task_assigned') {
                 taskAssignedCallbacks.forEach(cb => cb(msg.task));
-                }
-            
+            }
+
+            if (msg.type === 'new_notification') {
+                notificationCallbacks.forEach(callback => callback(msg));
+                return;
+            }
+
         } catch (e) {
             console.error('Error parsing WebSocket message in global handler:', e);
         }
@@ -138,13 +148,13 @@ function setupGlobalWebSocket() {
             clearInterval(heartbeatInterval);
             heartbeatInterval = null;
         }
-         // 🎯 FIX: Only reconnect if the user did NOT manually log out
+        // 🎯 FIX: Only reconnect if the user did NOT manually log out
         if (!isExplicitlyLoggingOut) {
             console.log('Attempting silent reconnection in 3 seconds (likely navigation)...');
             setTimeout(setupGlobalWebSocket, 3000);
         }
     };
-    
+
     globalWs.onerror = (error) => {
         console.error('Global WebSocket Error:', error);
     };
@@ -156,8 +166,8 @@ function setupGlobalWebSocket() {
 window.sendExplicitLogoutSignal = sendExplicitLogoutSignal;
 
 // When the user explicitly logs out (assuming you have a logout button)
-window.handleLogout = function() {
-        sendExplicitLogoutSignal(); 
+window.handleLogout = function () {
+    sendExplicitLogoutSignal();
     // Proceed with standard logout (clear token, redirect)
     localStorage.removeItem('authToken');
     localStorage.removeItem('username');
@@ -166,8 +176,8 @@ window.handleLogout = function() {
 
 // When the user closes the browser or tab
 window.addEventListener('beforeunload', () => {
-     // Send explicit offline signal
-    
+    // Send explicit offline signal
+
     // 🎯 CRITICAL EDIT: Stop the heartbeat interval immediately
     if (heartbeatInterval) {
         clearInterval(heartbeatInterval);

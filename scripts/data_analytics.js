@@ -160,7 +160,7 @@
     const themeChangeObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.attributeName === 'class' && mutation.target === document.body) {
-                updateDashboardData();
+                
             }
         });
     });

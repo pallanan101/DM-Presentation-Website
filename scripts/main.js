@@ -1,11 +1,26 @@
-
-
+// main.js
 
 // DOM element retrieval is safe here since the script is executed after the elements are defined in the HTML
 const sidebar = document.getElementById('sidebar');
 const themeToggle = document.getElementById('theme-toggle');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const body = document.body;
+
+// --- NOTIFICATION DOM ELEMENTS ---
+const notificationIcon = document.getElementById('notification-icon'); // The bell button
+const notificationBadge = document.getElementById('notification-badge');
+const notificationDropdown = document.getElementById('notification-dropdown'); // The dropdown container
+const notificationList = document.getElementById('notification-list'); // The UL/DIV inside the dropdown
+const notificationBellContainer = document.getElementById('notification-bell-container'); // The parent div for global click logic
+const popupContainer = document.getElementById('popup-notification-container');
+
+
+// --- NOTIFICATION STATE ---
+let notificationCount = 0;
+// Stores the history of all notifications (populated by API on click, and updated by WS)
+let notifications = []; 
+const MAX_LOCAL_NOTIFICATIONS = 15;
+
 
 // --- THEME TOGGLE FUNCTIONS ---
 
@@ -65,7 +80,7 @@ function updateThemeClasses(isDark) {
 }
 
 function initializeTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
     const isDark = savedTheme === 'dark';
     updateThemeClasses(isDark);
 }
@@ -88,20 +103,6 @@ function toggleSidebar() {
     const isCollapsed = sidebar.classList.toggle('collapsed');
     localStorage.setItem('sidebarCollapsed', isCollapsed);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // --- CONFIGURATION ---
 const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
@@ -139,23 +140,215 @@ async function fetchMeAndRoute() {
 }
 
 function logout(force = false) {
-    sendExplicitLogoutSignal();
+    // Assuming sendExplicitLogoutSignal is defined in main_websocket_handler.js
+    if (window.sendExplicitLogoutSignal) {
+        sendExplicitLogoutSignal(); 
+    }
     localStorage.removeItem('username');
-
     localStorage.removeItem('authToken');
     window.location.replace('login_page.html');
 }
 
+// --- NOTIFICATION UTILITIES ---
+
+function updateBadge(count) {
+    notificationCount = Math.max(0, count); // Ensure count is never negative
+    if (notificationBadge) {
+        notificationBadge.textContent = notificationCount;
+        if (notificationCount > 0) {
+            notificationBadge.classList.remove('hidden');
+        } else {
+            notificationBadge.classList.add('hidden');
+        }
+    }
+}
+
+function showPopupNotification(message, type) {
+    if (!popupContainer) return;
+
+    let bgColor = 'bg-blue-600'; // Default: info
+    if (type === 'warning') bgColor = 'bg-yellow-600';
+    if (type === 'error') bgColor = 'bg-red-700';
+    if (type === 'system') bgColor = 'bg-green-600';
+
+    const popup = document.createElement('div');
+    // Styling for the vanishing/sliding effect
+    popup.className = `p-4 text-white rounded-lg shadow-xl max-w-sm transform transition duration-500 opacity-0 translate-x-full ${bgColor}`;
+    popup.style.width = '300px';
+    popup.innerHTML = `
+        <div class="font-bold capitalize">${type}</div>
+        <div class="text-sm">${message}</div>
+    `;
+
+    popupContainer.prepend(popup);
+
+    // 1. Show: Slide in and fade up slightly after a moment
+    setTimeout(() => {
+        popup.classList.remove('opacity-0', 'translate-x-full');
+        popup.classList.add('opacity-100', 'translate-x-0');
+    }, 10);
+
+    // 2. Auto-Vanish: Remove after 5 seconds
+    setTimeout(() => {
+        // Slide out and fade away
+        popup.classList.remove('opacity-100', 'translate-x-0');
+        popup.classList.add('opacity-0', 'translate-x-full');
+
+        // Remove element from DOM after transition
+        popup.addEventListener('transitionend', () => popup.remove());
+
+    }, 5000);
+}
 
 
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'error': return { icon: 'fa-times-circle', color: 'text-red-500' };
+        case 'warning': return { icon: 'fa-exclamation-triangle', color: 'text-yellow-500' };
+        case 'info':
+        case 'system':
+        default: return { icon: 'fa-info-circle', color: 'text-blue-500' };
+    }
+}
+
+/**
+ * Fetches the 10 most recent global notifications from the server and updates the UI.
+ */
+async function fetchRecentNotificationsAndRender() {
+    const token = localStorage.getItem('authToken');
+    
+    notificationList.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">Fetching notifications...</div>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/notifications/recent`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const { success, notifications: fetchedNotifications } = await response.json();
+
+        if (success) {
+            // Update local state with fetched data, ensuring timestamps are Date objects
+            notifications = fetchedNotifications.map(n => ({
+                ...n,
+                timestamp: new Date(n.created_at || n.timestamp),
+                // Treat fetched notifications as read by default, unless it was broadcasted as new
+                unread: false 
+            })); 
+            // The unread count is only maintained by the badge, not the DB records.
+            renderNotificationList();
+        } else {
+            notificationList.innerHTML = '<div class="p-4 text-center text-red-500 text-sm">Failed to load notifications.</div>';
+        }
+    } catch (error) {
+        console.error('Error fetching recent notifications:', error);
+        notificationList.innerHTML = '<div class="p-4 text-center text-red-500 text-sm">Network error.</div>';
+    }
+}
 
 
+/**
+ * Renders the local 'notifications' array into the dropdown list.
+ */
+function renderNotificationList() {
+    // Apply theme colors to dropdown itself
+    const isDark = localStorage.getItem('theme') === 'dark';
+
+    if (isDark) {
+        notificationDropdown.classList.remove('bg-white', 'border-gray-200');
+        notificationDropdown.classList.add('bg-gray-500', 'border-gray-700'); // Note: Used bg-gray-500 for consistency with the dark theme
+    } else {
+        notificationDropdown.classList.remove('bg-gray-500', 'border-gray-700');
+        notificationDropdown.classList.add('bg-white', 'border-gray-200');
+    }
+
+    // Filter to show the latest entries
+    const recentNotifications = notifications.slice(0, MAX_LOCAL_NOTIFICATIONS);
+
+    notificationList.innerHTML = ''; // Clear previous list
+
+    if (recentNotifications.length === 0) {
+        notificationList.innerHTML = '<div class="p-4 text-gray-500 text-sm italic text-center">No recent notifications.</div>';
+        return;
+    }
+
+    recentNotifications.forEach((n) => {
+        const isUnread = n.unread;
+        const { icon, color } = getNotificationIcon(n.type);
+
+        const item = document.createElement('div');
+        // Apply conditional dark mode classes on the list item
+        const unreadBg = isDark ? 'bg-gray-700' : 'bg-green-50/50';
+        const defaultBg = isDark ? 'bg-gray-500' : 'bg-white';
+        const hoverBg = isDark ? 'hover:bg-gray-600' : 'hover:bg-gray-100';
+        const itemTextColor = isDark ? 'text-gray-200' : 'text-gray-800';
+        const sender = n.sender_username || 'System';
+
+        item.className = `p-3 flex items-start space-x-3 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${isUnread ? unreadBg : defaultBg} ${hoverBg} transition duration-100`;
+
+        item.innerHTML = `
+                    <i class="fas ${icon} ${color} mt-0.5 w-5 min-w-[20px]"></i>
+                    <div class="flex-grow">
+                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.message}</p>
+                        <p class="text-gray-400 text-xs mt-1">From ${sender} • ${n.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                `;
+
+        item.addEventListener('click', (e) => {
+            e.stopPropagation(); // Keep the dropdown open, but mark as read
+            if (n.unread) {
+                n.unread = false;
+                updateBadge(notificationCount - 1);
+                renderNotificationList(); // Re-render to update item style
+            }
+        });
+
+        notificationList.appendChild(item);
+    });
+}
 
 
+/**
+ * Handles a received notification from the WebSocket (real-time).
+ */
+function handleWebSocketNotification(msg) {
+    const newNotification = {
+        message: msg.message,
+        // Convert ISO string from server to Date object
+        timestamp: new Date(msg.timestamp || Date.now()), 
+        type: msg.notification_type || 'info',
+        sender_username: msg.sender || 'System',
+        unread: true // Newly received messages are always unread
+    };
+
+    // Prepend the new notification to the local list
+    notifications.unshift(newNotification);
+    
+    // Keep the list size constrained 
+    if (notifications.length > MAX_LOCAL_NOTIFICATIONS) { 
+        notifications.pop(); 
+    }
+    
+    updateBadge(notificationCount + 1); 
+    showPopupNotification(newNotification.message, newNotification.type);
+
+    // If the dropdown is currently visible, re-render it
+    if (notificationDropdown && !notificationDropdown.classList.contains('hidden')) {
+        renderNotificationList();
+    }
+}
 
 
-
-
+function initializeRealTimeNotifications() {
+    // Subscribe to the global update stream (defined in main_websocket_handler.js)
+    if (window.subscribeToNotifications) {
+        window.subscribeToNotifications(handleWebSocketNotification);
+        console.log('✅ Subscribed to global real-time notifications.');
+    } else {
+        console.error('❌ subscribeToNotifications not found.');
+    }
+    
+    // Start with 0 unread notifications
+    updateBadge(0); 
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -163,34 +356,43 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
     initializeSidebar();
 
-    themeToggle.addEventListener('click', toggleTheme);
-    sidebarToggle.addEventListener('click', toggleSidebar);
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
 
-    // --- NOTIFICATION HANDLER SETUP (The FIX) ---
-    notificationButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // Stop event from propagating to document click
-        if (notificationDropdown.classList.contains('hidden')) {
-            // OPEN DROPDOWN
-            renderNotificationList();
-            notificationDropdown.classList.remove('hidden');
 
-            // Mark as read and reset the badge
-            notifications.forEach(n => n.unread = false);
-            updateBadge(0);
-            renderNotificationList(); // Re-render to update the item style
+    // --- NOTIFICATION HANDLER SETUP (Dynamic API/WS Logic) ---
+    if (notificationIcon && notificationDropdown) {
+        notificationIcon.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            
+            const isHidden = notificationDropdown.classList.contains('hidden');
 
-        } else {
-            // CLOSE DROPDOWN
-            notificationDropdown.classList.add('hidden');
-        }
-    });
+            if (isHidden) {
+                // OPEN DROPDOWN: 1. Fetch, 2. Render, 3. Clear Badge
+                notificationDropdown.classList.remove('hidden');
+                
+                // Fetch latest data from API
+                fetchRecentNotificationsAndRender();
 
-    // Close dropdown when clicking anywhere else on the document
-    document.addEventListener('click', (event) => {
-        if (!notificationDropdown.classList.contains('hidden') && !notificationButton.contains(event.target) && !notificationDropdown.contains(event.target)) {
-            notificationDropdown.classList.add('hidden');
-        }
-    });
+                // Clear the badge count (mark all currently seen notifications as read)
+                updateBadge(0); 
+            } else {
+                // CLOSE DROPDOWN
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Global click handler to close the dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (notificationDropdown && !notificationDropdown.classList.contains('hidden')) {
+                // Check if the click was outside the icon and the dropdown itself
+                if (notificationBellContainer && !notificationBellContainer.contains(e.target)) {
+                    notificationDropdown.classList.add('hidden');
+                }
+            }
+        });
+    }
+
 
     // --- AUTH/ROUTING LOGIC ---
     document.getElementById('sidebar-logout-btn').addEventListener('click', () => logout());
@@ -210,147 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 🎯 FIX: Start notification simulation after everything is loaded
-    startSimulation();
+    // 🎯 INITIALIZATION: Start the real-time subscription
+    initializeRealTimeNotifications();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// DOM element retrieval is safe here since the script is defined after the elements
-const notificationButton = document.getElementById('notification-button');
-const notificationBadge = document.getElementById('notification-badge');
-const notificationDropdown = document.getElementById('notification-dropdown');
-const notificationList = document.getElementById('notification-list');
-
-let notificationCount = 0;
-let notifications = []; // Stores the history of all received notifications
-
-// --- NOTIFICATION UTILITIES ---
-
-function updateBadge(count) {
-    notificationCount = count;
-    if (notificationCount > 0) {
-        notificationBadge.textContent = notificationCount;
-        notificationBadge.classList.remove('hidden');
-    } else {
-        notificationBadge.textContent = '';
-        notificationBadge.classList.add('hidden');
-    }
-}
-
-function getNotificationIcon(type) {
-    switch (type) {
-        case 'error': return { icon: 'fa-times-circle', color: 'text-red-500' };
-        case 'warning': return { icon: 'fa-exclamation-triangle', color: 'text-yellow-500' };
-        case 'info':
-        default: return { icon: 'fa-info-circle', color: 'text-blue-500' };
-    }
-}
-
-function renderNotificationList() {
-    // Apply theme colors to dropdown itself
-    const isDark = localStorage.getItem('theme') === 'dark';
-
-    if (isDark) {
-        notificationDropdown.classList.remove('bg-white', 'border-gray-200');
-        notificationDropdown.classList.add('bg-gray-900', 'border-gray-700');
-    } else {
-        notificationDropdown.classList.remove('bg-gray-900', 'border-gray-700');
-        notificationDropdown.classList.add('bg-white', 'border-gray-200');
-    }
-
-    // Filter to show only the last 10 (or a manageable number)
-    const recentNotifications = notifications.slice(-10).reverse();
-
-    notificationList.innerHTML = ''; // Clear previous list
-
-    if (recentNotifications.length === 0) {
-        notificationList.innerHTML = '<li class="p-4 text-gray-500 text-sm italic text-center">No recent notifications.</li>';
-        return;
-    }
-
-    recentNotifications.forEach((n, index) => {
-        const isUnread = n.unread;
-        const { icon, color } = getNotificationIcon(n.type);
-
-        const item = document.createElement('li');
-        // Apply conditional dark mode classes on the list item
-        const unreadBg = isDark ? 'bg-gray-800' : 'bg-green-50/50';
-        const defaultBg = isDark ? 'bg-gray-900' : 'bg-white';
-        const hoverBg = isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100';
-        const itemTextColor = isDark ? 'text-gray-200' : 'text-gray-800';
-
-        item.className = `p-3 flex items-start space-x-3 cursor-pointer border-b last:border-b-0 ${isUnread ? unreadBg : defaultBg} ${hoverBg} transition duration-100`;
-
-        item.innerHTML = `
-                    <i class="fas ${icon} ${color} mt-0.5"></i>
-                    <div class="flex-grow">
-                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.message}</p>
-                        <p class="text-gray-400 text-xs mt-1">${n.timestamp.toLocaleTimeString()}</p>
-                    </div>
-                `;
-
-        item.addEventListener('click', (e) => {
-            // Prevent the click from bubbling up to the document click handler that closes the dropdown
-            e.stopPropagation();
-            if (n.unread) {
-                n.unread = false;
-                updateBadge(notificationCount > 0 ? notificationCount - 1 : 0);
-                renderNotificationList();
-            }
-        });
-
-        notificationList.appendChild(item);
-    });
-}
-
-function handleNotificationReceived(message, type) {
-    const newNotification = {
-        message,
-        timestamp: new Date(),
-        type,
-        unread: true
-    };
-
-    notifications.push(newNotification);
-    updateBadge(notificationCount + 1);
-}
-
-// --- SIMULATED REAL-TIME FEED ---
-const sampleNotifications = [
-    { msg: "Task A-501 was automatically unlocked.", type: "warning" },
-    { msg: "New high-priority task assigned: B-993.", type: "info" },
-    { msg: "System maintenance starting in 5 min.", type: "info" },
-    { msg: "Critical queue depth reached.", type: "error" },
-    { msg: "User JohnDoe has locked Task C-202.", type: "info" }
-];
-
-let simIndex = 0;
-function startSimulation() {
-    // Trigger 3 initial notifications on load
-    for (let i = 0; i < 3; i++) {
-        handleNotificationReceived(sampleNotifications[simIndex % sampleNotifications.length].msg, sampleNotifications[simIndex % sampleNotifications.length].type);
-        simIndex++;
-    }
-
-    // Continue simulation every 15 seconds
-    setInterval(() => {
-        const alert = sampleNotifications[simIndex % sampleNotifications.length];
-        handleNotificationReceived(alert.msg, alert.type);
-        simIndex++;
-    }, 15000);
-}
-
