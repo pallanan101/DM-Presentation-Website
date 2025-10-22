@@ -526,12 +526,11 @@ function renderSubView(viewId) {
     const notificationCenterView = document.getElementById('notification-center-view');
 
     // NEW Views
-    const feedManagementView = document.getElementById('feed-management-view');
     const groupChatManagementView = document.getElementById('group-chat-management-view');
 
 
     // 1. Hide ALL views
-    [staffManagementMainView, sensitiveWordsView, notificationCenterView, feedManagementView, groupChatManagementView].forEach(view => {
+    [staffManagementMainView, sensitiveWordsView, notificationCenterView, groupChatManagementView].forEach(view => {
         if(view) view.classList.add('hidden');
     });
 
@@ -548,10 +547,7 @@ function renderSubView(viewId) {
         renderNotificationCenter(); 
     } 
     // NEW Views
-    else if (viewId === 'card-feed-management') {
-        if(feedManagementView) feedManagementView.classList.remove('hidden');
-        console.log('Front Page Management View initialized.');
-    } else if (viewId === 'card-gc-management') {
+     else if (viewId === 'card-gc-management') {
         if(groupChatManagementView) groupChatManagementView.classList.remove('hidden');
         console.log('Group Chat Management View initialized.');
     }
@@ -738,6 +734,30 @@ console.log('recip : ', recipientList);
     }
 }
 
+
+const notifTypeStyles = {
+    'warning': {
+        color: 'text-yellow-600',
+        iconClasses: 'fas fa-exclamation-triangle' // Warning Icon
+    },
+    'info': {
+        color: 'text-blue-600',
+        iconClasses: 'fas fa-info-circle' // Info Circle Icon
+    },
+    'error': {
+        color: 'text-red-600',
+        iconClasses: 'fas fa-times-circle' // Error/X Circle Icon
+    },
+    'system': {
+        color: 'text-green-600',
+        iconClasses: 'fas fa-robot' // System/Robot Icon (or fa-check-circle)
+    },
+    'default': { // Fallback
+        color: 'text-gray-600',
+        iconClasses: 'fas fa-bell' // Generic Bell Icon
+    }
+};
+
 async function shownotifmessage(id) {
   try {
     const token = localStorage.getItem('authToken');
@@ -755,12 +775,36 @@ async function shownotifmessage(id) {
 
     const notif = data.notification;
 
-    // Populate modal content
+  // Basic Text Content Population (Same as before)
+    document.getElementById('notif-modal-id').textContent = notif.id;
     document.getElementById('notif-modal-title').textContent = notif.title;
-    document.getElementById('notif-modal-sender').textContent = `From: ${notif.sender_username}`;
-    document.getElementById('notif-modal-type').textContent = `Type: ${notif.type}`;
+    document.getElementById('notif-modal-sender').textContent = notif.sender_username;
+    document.getElementById('notif-modal-receiver').textContent = notif.recipient;
     document.getElementById('notif-modal-message').textContent = notif.message;
 
+    // --- Dynamic Type Styling and Icon ---
+    const notifTypeElement = document.getElementById('notif-modal-type');
+    const notifTypeIconElement = document.getElementById('notif-modal-type-icon');
+    
+    // Determine the style based on the notification type
+    const typeKey = notif.type ? notif.type.toLowerCase() : 'default';
+    const typeInfo = notifTypeStyles[typeKey] || notifTypeStyles['default'];
+
+    // 1. Update Text and Color
+    // Reset classes, then add the new color class
+    notifTypeElement.className = 'uppercase text-sm';
+    notifTypeElement.classList.add(typeInfo.color);
+    notifTypeElement.textContent = notif.type;
+
+    // 2. Update Icon and Color
+    // Reset all previous icon classes and color classes
+    notifTypeIconElement.className = 'text-lg mr-1 flex-shrink-0'; // Reset to base classes
+    
+    // Add the specific Font Awesome icon classes (e.g., 'fas fa-circle-info')
+    // and the specific color class
+    notifTypeIconElement.classList.add(...typeInfo.iconClasses.split(' '));
+    notifTypeIconElement.classList.add(typeInfo.color);
+    // -------------------------------------
     // Show modal
     document.getElementById('notif-modal').classList.remove('hidden');
   } catch (err) {

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiPlus OMS Moderation Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/front_page_management.css">
+
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+    <div id="app-layout">
+        <div id="popup-notification-container" style="position: fixed; top: 7rem; right: 1rem; z-index: 50;"
+            class="space-y-2">
+        </div>
+        <nav id="sidebar" class="bg-white shadow-xl flex flex-col h-full">
+
+            <div class="flex items-center justify-start p-4 mb-6">
+                <img src="https://www.arka-designs.com/assets/img/dp.png" alt="DigiPlus Logo"
+                    class="w-10 h-10 object-contain min-w-[40px] text-center">
+                <h1 class="text-xl font-bold ml-2 logo-text">DigiPlus OMS</h1>
+            </div>
+
+            <div id="nav-links">
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="index.html"><i
+                        class="fas fas fa-home   "></i><span class="sidebar-text ml-2">Dashboard</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="content_review.html"><i
+                        class="fas fa-eye"></i><span class="sidebar-text ml-2">Content Review</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="management.html"><i
+                        class="fas fa-users-cog"></i><span class="sidebar-text ml-2">Management</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="data_analytics.html"><i
+                        class="fas fa-chart-line"></i><span class="sidebar-text ml-2">Data Analytics</span></a>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100" href="quality_audit.html"><i
+                        class="fas fa-clipboard-check"></i><span class="sidebar-text ml-2">Quality Audit</span></a>
+                <a class="nav-link text-gray-700 active hover:text-gray-900 hover:bg-gray-100" href="#"><i
+                        class="fas fa-pager"></i><span class="sidebar-text ml-2">Front Page Management</span></a>
+            </div>
+
+            <div class="mt-auto">
+                <div class="relative">
+                    <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
+                        onclick="toggleStatusDropdown()" id="status-trigger">
+                        <i class="fas fa-circle text-green-500"></i>
+                        <span class="sidebar-text ml-2">Online</span>
+                    </a>
+
+                    <!-- Dropdown (initially hidden) -->
+                    <div id="status-dropdown"
+                        class="absolute bottom-full mb-2 left-0 w-48 bg-white border border-gray-200 rounded shadow-lg hidden z-50">
+                        <ul class="text-sm text-gray-700">
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Online', 'green')">
+                                <i class="fas fa-circle text-green-500 mr-2"></i> Online
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Break', 'yellow')">
+                                <i class="fas fa-circle text-yellow-500 mr-2"></i> Break
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Lunch', 'orange')">
+                                <i class="fas fa-circle text-orange-500 mr-2"></i> Lunch
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Meeting', 'blue')">
+                                <i class="fas fa-circle text-blue-500 mr-2"></i> Meeting
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="setStatus('Idle', 'red')">
+                                <i class="fas fa-circle text-red-500 mr-2"></i> Idle
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Training', 'purple')">
+                                <i class="fas fa-circle text-purple-500 mr-2"></i> Training
+                            </li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                onclick="setStatus('Offline', 'gray')">
+                                <i class="fas fa-circle text-gray-500 mr-2"></i> Offline
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a class="nav-link text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                    onclick="routeTo('settings.html', true)" data-view="settings.html">
+                    <i class="fas fa-cog"></i>
+                    <span class="sidebar-text ml-2">Settings</span>
+                </a>
+
+                <a class="nav-link text-gray-700 hover:text-red-500 hover:bg-gray-100" id="sidebar-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-text ml-2">Logout</span>
+                </a>
+            </div>
+        </nav>
+        <div id="main-area" class="bg-gray-200">
+            <header id="header-bar" class="flex items-center justify-between px-8 py-4 shadow-md  ">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class=" hover:text-green-500 p-2 mr-4 transition duration-300">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-xl font-semibold">Management</h2>
+                </div>
+
+                <div class="flex items-center space-x-4">
+
+                    <div id="notification-bell-container" class="relative">
+                        <button id="notification-icon"
+                            class="p-2 rounded-full hover:bg-gray-100 transition duration-150">
+                            <i class="fas fa-bell text-xl text-gray-600"></i>
+                        </button>
+                        <span id="notification-badge"
+                            class="absolute top-0 right-0 inline-flex items-center justify-center 
+                                                            px-2 py-1 text-xs font-bold leading-none text-red-100 transform 
+                                                            translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full hidden">
+                            0
+                        </span>
+
+                        <div id="notification-dropdown"
+                            class="absolute right-0 mt-3 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-20 hidden">
+                            <div class="p-4 border-b">
+                                <h4 class="font-semibold text-gray-800">Recent Notifications</h4>
+                            </div>
+                            <div id="notification-list" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                <div class="p-4 text-center text-gray-500 text-sm">Loading...</div>
+                            </div>
+                            <div class="p-2 text-center border-t bg-gray-50">
+                                <a href="management.html?view=notification-center-card"
+                                    class="text-xs text-blue-600 hover:text-blue-800">Go to Notification Center</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button id="theme-toggle" class=" hover:text-green-500 p-2 transition duration-300">
+                        <i class="fas fa-moon text-lg"></i> </button>
+
+                    <div class="flex items-center">
+                        <div class="text-right">
+                            <span class="text-xs text-gray-400 block">Welcome!</span>
+                            <span id="username-display" class="text-sm font-medium">Moderator</span>
+                        </div>
+                        <i class="fas fa-user-circle text-2xl text-green-500 ml-2"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div id="content-wrapper" class="">
+                <main id="content-container" class="bg-gray-100">
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+
+                    <!-- Primary Management View Container -->
+                    <div id="feed-management-view" class="container mx-auto">
+
+                        <div class="page-header">
+                            <h1>Front Page Management</h1>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Front Page Posts</h2>
+                                <!-- Link hooked up to open the modal -->
+                                <a href="#" id="create-post-btn" class="create-button">
+                                    <i class="fas fa-plus mr-1"></i> create post
+                                </a>
+                            </div>
+
+                            <!-- Posts Table -->
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>DATE POSTED</th>
+                                        <th>USER ID</th>
+                                        <th>TYPE</th>
+                                        <th>CONTENT</th>
+                                        <th>PREVIEW</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>10/23/2025, 6:00:01 AM</td>
+                                        <td>mod1</td>
+                                        <td>Image</td>
+                                        <td>Hello</td>
+                                        <td><a href="#" class="preview-link">🖼️</a></td>
+                                        <td>
+                                            <a href="#" class="action-link">Edit</a>
+                                            <a href="#" class="action-link">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>10/23/2025, 5:56:08 AM</td>
+                                        <td>mod1</td>
+                                        <td>Video</td>
+                                        <td>Hello</td>
+                                        <td><a href="#" class="preview-link">▶️</a></td>
+                                        <td>
+                                            <a href="#" class="action-link">Edit</a>
+                                            <a href="#" class="action-link">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>10/23/2025, 5:50:50 AM</td>
+                                        <td>mod2</td>
+                                        <td>Image</td>
+                                        <td>Testing notification sending to everyone</td>
+                                        <td><a href="#" class="preview-link">🖼️</a></td>
+                                        <td>
+                                            <a href="#" class="action-link">Edit</a>
+                                            <a href="#" class="action-link">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>10/23/2025, 5:50:13 AM</td>
+                                        <td>mod2</td>
+                                        <td>Video</td>
+                                        <td>Testing notification sending to everyone</td>
+                                        <td><a href="#" class="preview-link">▶️</a></td>
+                                        <td>
+                                            <a href="#" class="action-link">Edit</a>
+                                            <a href="#" class="action-link">Delete</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ---------------------------------------------------------------------- -->
+                    <!-- CREATE POST MODAL -->
+                    <!-- ---------------------------------------------------------------------- -->
+                    <div id="create-post-modal"
+                        class="fixed inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+                        <div
+                            class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl transform transition-all scale-100 ease-out duration-300">
+
+                            <!-- Modal Header -->
+                            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                                <h3 class="text-2xl font-bold text-gray-900">Create New Front Page Post</h3>
+                                <button onclick="closePostModal()"
+                                    class="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+
+                            <!-- Post Form -->
+                            <form id="new-post-form" onsubmit="handlePostSubmit(event)">
+
+                                <!-- User ID and Type -->
+                                <div class="grid grid-cols-2 gap-6 mb-4">
+                                    <!-- User ID (Mock Read-only) -->
+                                    <div>
+                                        <label for="post-user-id"
+                                            class="block text-sm font-medium text-gray-700 mb-1">User ID
+                                            (Creator)</label>
+                                        <input type="text" id="post-user-id" value="current-admin-id" readonly
+                                            class="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                                    </div>
+
+                                    <!-- Post Type (Dropdown) -->
+                                    <div>
+                                        <label for="post-type" class="block text-sm font-medium text-gray-700 mb-1">Post
+                                            Type</label>
+                                        <!-- ADDED onchange handler to toggle file input -->
+                                        <select id="post-type" required onchange="toggleFileInput()"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-150">
+                                            <option value="Article">Text/Article</option>
+                                            <option value="Image">Image</option>
+                                            <option value="Video">Video</option>
+                                            
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- NEW: File Upload Input (Initially Hidden) -->
+                                <div id="file-input-container" class="mb-4 hidden">
+                                    <label for="post-file" class="block text-sm font-medium text-gray-700 mb-1">Upload
+                                        File (Image/Video)</label>
+                                    <input type="file" id="post-file" accept="image/*,video/*" class="w-full border border-gray-300 rounded-lg p-2 file:mr-4 file:py-2 file:px-4
+                                  file:rounded-full file:border-0 file:text-sm file:font-semibold
+                                  file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                </div>
+
+                                <!-- Content Textarea -->
+                                <div class="mb-6">
+                                    <label for="post-content"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Content (Message /
+                                        URL)</label>
+                                    <textarea id="post-content" rows="6" required
+                                        placeholder="Enter the content text or the URL for external media..."
+                                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-150"></textarea>
+                                </div>
+
+                                <!-- Mock Preview Section -->
+                                <div class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-blue-700 font-semibold">Post Preview Mockup</span>
+                                        <button type="button" onclick="mockPreview()"
+                                            class="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition">
+                                            Generate Preview
+                                        </button>
+                                    </div>
+                                    <p id="mock-preview-output" class="mt-2 text-sm text-blue-900 italic">Preview
+                                        content will appear here...</p>
+                                </div>
+
+                                <!-- Footer Buttons -->
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" onclick="closePostModal()"
+                                        class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-md">
+                                        Save Post
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                    <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/main_websocket_handler.js"></script>
+    <script src="scripts/front_page_management.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>

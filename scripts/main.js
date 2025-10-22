@@ -163,7 +163,7 @@ function updateBadge(count) {
     }
 }
 
-function showPopupNotification(message, type) {
+function showPopupNotification(message, type,sender) {
     if (!popupContainer) return;
 
     let bgColor = 'bg-blue-600'; // Default: info
@@ -177,6 +177,7 @@ function showPopupNotification(message, type) {
     popup.style.width = '300px';
     popup.innerHTML = `
         <div class="font-bold capitalize">${type}</div>
+        <div class="text-sm text-gray-300">${sender}</div>
         <div class="text-sm">${message}</div>
     `;
 
@@ -311,7 +312,7 @@ function renderNotificationList() {
  */
 function handleWebSocketNotification(msg) {
     const newNotification = {
-        message: msg.message,
+        message: msg.title,
         // Convert ISO string from server to Date object
         timestamp: new Date(msg.timestamp || Date.now()), 
         type: msg.notification_type || 'info',
@@ -328,7 +329,7 @@ function handleWebSocketNotification(msg) {
     }
     
     updateBadge(notificationCount + 1); 
-    showPopupNotification(newNotification.message, newNotification.type);
+    showPopupNotification(newNotification.message, newNotification.type, newNotification.sender_username);
 
     // If the dropdown is currently visible, re-render it
     if (notificationDropdown && !notificationDropdown.classList.contains('hidden')) {
@@ -415,3 +416,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🎯 INITIALIZATION: Start the real-time subscription
     initializeRealTimeNotifications();
 });
+
+

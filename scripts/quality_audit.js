@@ -175,10 +175,10 @@ let currentcat = null;
 const API_BASE_URL2 = 'https://www.arta-tsg.com:3001/api';
 function showModerationTable(queueId, queueName, category) {
   // 1. Hide the Queue List Table Area
-  const queueListArea = document.getElementById('content-review');
+  const queueListArea = document.getElementById('qa-content-review');
 
   // 2. Show the Pending Moderation List Page
-  const taskTableArea = document.getElementById('pending-moderation-list-page');
+  const taskTableArea = document.getElementById('qa-pending-moderation-list-page');
 
   if (queueListArea) queueListArea.classList.add('hidden');
   if (taskTableArea) taskTableArea.classList.remove('hidden');
@@ -196,8 +196,8 @@ function showModerationTable(queueId, queueName, category) {
  * Handles navigation back from the task page to the main queue list table.
  */
 function goBackToQueueList() {
-  const queueListArea = document.getElementById('content-review');
-  const taskTableArea = document.getElementById('pending-moderation-list-page');
+  const queueListArea = document.getElementById('qa-content-review');
+  const taskTableArea = document.getElementById('qa-pending-moderation-list-page');
 
   if (queueListArea) queueListArea.classList.remove('hidden');
   if (taskTableArea) taskTableArea.classList.add('hidden');
@@ -335,7 +335,7 @@ function renderViolationDropdown(selectedId, contentId) {
 
 
 async function loadPendingTasks(queueId, queueName, category) {
-  const container = document.getElementById('pending-moderation-list-page');
+  const container = document.getElementById('qa-pending-moderation-list-page');
   if (!container) return;
 
   container.innerHTML = `
@@ -495,8 +495,8 @@ function addOrUpdateTaskRow(task, category) {
 //     }
 
 //     // Determine which view is visible
-//     const queueListArea = document.getElementById('content-review');
-//     const taskTableArea = document.getElementById('pending-moderation-list-page');
+//     const queueListArea = document.getElementById('qa-content-review');
+//     const taskTableArea = document.getElementById('qa-pending-moderation-list-page');
 //     const isQueueList = queueListArea && !queueListArea.classList.contains('hidden');
 //     const isTaskTable = taskTableArea && !taskTableArea.classList.contains('hidden');
 //     const isSameQueue = String(task.queue_id) === String(currentQueueId);
