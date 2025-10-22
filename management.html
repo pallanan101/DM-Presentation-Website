@@ -316,6 +316,19 @@
                                 <div id="notification-history-tab"
                                     class="tab-content-notification bg-white p-6 rounded-lg shadow-lg">
                                     <h3 class="text-xl font-semibold mb-4">Past Notifications List</h3>
+
+                                    <div id="notif-modal"
+                                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                                        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+                                            <h2 id="notif-modal-title" class="text-xl font-bold mb-2"></h2>
+                                            <p id="notif-modal-sender" class="text-sm text-gray-600 mb-1"></p>
+                                            <p id="notif-modal-type" class="text-sm text-gray-600 mb-3"></p>
+                                            <p id="notif-modal-message" class="text-gray-800 whitespace-pre-line"></p>
+                                            <button
+                                                onclick="document.getElementById('notif-modal').classList.add('hidden')"
+                                                class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
+                                        </div>
+                                    </div>
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
@@ -350,9 +363,28 @@
                                     <h3 class="text-xl font-semibold mb-4">Send Global Notification</h3>
                                     <div>
                                         <div class="mb-4">
+                                            <label for="notification-title"
+                                                class="block text-sm font-medium text-gray-700">Title</label>
+                                            <textarea id="notification-title" rows="1" required
+                                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="notification-recipient"
+                                                class="block text-sm font-medium text-gray-700">Send to</label>
+                                            <textarea id="notification-recipient" rows="1" required
+                                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+                                        </div>
+                                        <div class="relative">
+                                            <div id="recipient-suggestions"
+                                                class="absolute z-10 hidden bg-white border border-gray-300 rounded-md shadow-md mt-1 w-48 max-h-48 overflow-y-auto">
+                                                <!-- Suggestions will be injected here -->
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
                                             <label for="notification-message"
                                                 class="block text-sm font-medium text-gray-700">Message</label>
-                                            <textarea id="notification-message" rows="3" required
+                                            <textarea id="notification-message" rows="10" required
                                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
                                         </div>
                                         <div class="mb-6">
@@ -371,6 +403,8 @@
                                             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">
                                             Send & Broadcast
                                         </button>
+
+
                                     </div>
                                 </div>
 
@@ -535,7 +569,8 @@
                                             <span>2025-10-20 18:25:01</span>
                                         </div>
                                         <p class="mt-1 text-sm text-gray-800">"We need to meet up now and plan the..."
-                                            <i class="fas fa-exclamation-circle ml-2"></i></p>
+                                            <i class="fas fa-exclamation-circle ml-2"></i>
+                                        </p>
                                         <div class="mt-2 text-right">
                                             <button class="text-xs text-red-600 hover:text-red-900 font-medium">View
                                                 Thread / Ban</button>

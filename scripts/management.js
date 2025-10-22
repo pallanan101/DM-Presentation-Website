@@ -1,5 +1,6 @@
 // management.js (Revised)
 
+const API_URL = 'https://www.arta-tsg.com:3001/api';
 // --- CONFIGURATION ---
 const WS_URL = 'wss://www.arta-tsg.com:3001'; // Kept, but the connection is now handled globally
 
@@ -129,7 +130,7 @@ async function loadPendingTasks(queueId, queueName) {
   const token = localStorage.getItem('authToken');
 
  
-    const resp = await fetch(`${API_BASE_URL}/queues/${queueId}/alltasks`, {
+    const resp = await fetch(`${API_URL}/queues/${queueId}/alltasks`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const { success, tasks, message } = await resp.json();
@@ -285,7 +286,7 @@ async function assignToStaff(queueId, contentId, assignee) {
   const token = localStorage.getItem('authToken');
   try {
     const resp = await fetch(
-      `${API_BASE_URL}/queues/${queueId}/assign`,
+      `${API_URL}/queues/${queueId}/assign`,
       {
         method: 'POST',
         headers: {
@@ -339,7 +340,7 @@ async function fetchStaffDataAndRender() {
 
     try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`${API_BASE_URL}/staff`, { // Now uses the defined API_BASE_URL
+        const res = await fetch(`${API_URL}/staff`, { // Now uses the defined API_URL
             headers: { Authorization: `Bearer ${token}` }
         });
         const result = await res.json();
@@ -478,7 +479,7 @@ async function fetchQueueListSummary() {
     
     try {
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`${API_BASE_URL}/queues`, {
+        const res = await fetch(`${API_URL}/queues`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -598,12 +599,101 @@ function renderStaffManagement() {
 }
 
 
+
+
+const textarea = document.getElementById('notification-recipient');
+const suggestionBox = document.getElementById('recipient-suggestions');
+
+textarea.addEventListener('input', () => {
+  const value = textarea.value.trim();
+  if (value.length > 0) {
+    suggestionBox.classList.remove('hidden');
+  } else {
+    suggestionBox.classList.add('hidden');
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!suggestionBox.contains(e.target) && e.target !== textarea) {
+    suggestionBox.classList.add('hidden');
+  }
+});
+
+function handleRecipientClick(selected) {
+  const current = textarea.value.trim();
+
+  if (selected === 'Everyone') {
+    textarea.value = 'Everyone';
+  } else {
+    if (current === 'Everyone') {
+      textarea.value = selected;
+    } else {
+      const recipients = current.split(',').map(r => r.trim()).filter(Boolean);
+      if (!recipients.includes(selected)) {
+        recipients.push(selected);
+        textarea.value = recipients.join(', ');
+      }
+    }
+  }
+
+  suggestionBox.classList.add('hidden');
+}
+
+async function loadRecipientSuggestions() {
+  try {
+     const token = localStorage.getItem('authToken');
+    const res = await fetch(`${API_URL}/users/list`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    const data = await res.json();
+    if (!data.success) return;
+        
+    suggestionBox.innerHTML = '';
+    data.users.forEach(username => {
+      const btn = document.createElement('button');
+      btn.textContent = username;
+      btn.className = 'block w-full text-left px-3 py-2 hover:bg-gray-100';
+      btn.addEventListener('click', () => handleRecipientClick(username));
+      suggestionBox.appendChild(btn);
+    });
+  } catch (err) {
+    console.error('Failed to load suggestions:', err);
+  }
+}
+
+loadRecipientSuggestions();
+
+
+function processrecipients(recipient) {
+  if (!recipient) return [];
+
+  // Split by comma, trim each entry, and filter out empty strings
+  const rawList = recipient
+    .split(',')
+    .map(r => r.trim())
+    .filter(Boolean);
+
+  // If 'Everyone' is present, return only that
+  if (rawList.includes('Everyone')) {
+    return ['Everyone'];
+  }
+
+  // Deduplicate and return
+  return [...new Set(rawList)];
+}
+
 async function sendNotification(sender) {
+
+    const title = document.getElementById('notification-title').value;
     const message = document.getElementById('notification-message').value.trim();
     const type = document.getElementById('notification-type').value;
+    const recipient = document.getElementById('notification-recipient').value;
 
-    if (!message) {
-        alert('Please enter a message.');
+
+    const recipientList = processrecipients(recipient);// <----process recipient here  
+
+    if (!message || !recipientList || !title) {
+        alert('Missing Field! Need a Title, a message and a Recipient!.');
         return;
     }
 
@@ -612,16 +702,18 @@ async function sendNotification(sender) {
     sender.disabled = true;
 
     const token = localStorage.getItem('authToken');
-    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
-
+    console.log('TItle : ', title);
+console.log('message : ', message);
+console.log('type: ', type);
+console.log('recip : ', recipientList);
     try {
-        const response = await fetch(`${API_BASE_URL}/notifications/send`, {
+        const response = await fetch(`${API_URL}/notifications/send`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ message, type })
+            body: JSON.stringify({title, message, type ,recipients: recipientList})
         });
 
         const data = await response.json();
@@ -629,11 +721,12 @@ async function sendNotification(sender) {
         if (data.success) {
             alert('Notification sent and broadcasted successfully!');
             document.getElementById('notification-message').value = ''; // Clear message field
-
+            title.value ='';
+            recipient.value = '';
             // Switch to history tab to show the new notification immediately
-            switchNotificationTab('history');
+            
         } else {
-            alert(`Failed to send notification: ${data.message || 'Server error'}`);
+            alert(`Failed to send notification2: ${data.message || 'Server error'}`);
         }
 
     } catch (error) {
@@ -645,7 +738,36 @@ async function sendNotification(sender) {
     }
 }
 
+async function shownotifmessage(id) {
+  try {
+    const token = localStorage.getItem('authToken');
+    const res = await fetch(`${API_URL}/notifications/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
+    const data = await res.json();
+    if (!data.success) {
+      alert('Failed to load notification details.');
+      return;
+    }
+
+    const notif = data.notification;
+
+    // Populate modal content
+    document.getElementById('notif-modal-title').textContent = notif.title;
+    document.getElementById('notif-modal-sender').textContent = `From: ${notif.sender_username}`;
+    document.getElementById('notif-modal-type').textContent = `Type: ${notif.type}`;
+    document.getElementById('notif-modal-message').textContent = notif.message;
+
+    // Show modal
+    document.getElementById('notif-modal').classList.remove('hidden');
+  } catch (err) {
+    console.error('Error fetching notification:', err);
+    alert('An error occurred while loading the notification.');
+  }
+}
 
 /**
  * Fetches the list of past notifications and renders them.
@@ -657,10 +779,10 @@ async function fetchNotificationsAndRender() {
     body.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Fetching notifications...</td></tr>';
 
     const token = localStorage.getItem('authToken');
-    const API_BASE_URL = 'https://www.arta-tsg.com:3001/api';
+    
 
     try {
-        const response = await fetch(`${API_BASE_URL}/notifications`, {
+        const response = await fetch(`${API_URL}/notifications`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const { success, notifications, message } = await response.json();
@@ -685,11 +807,11 @@ async function fetchNotificationsAndRender() {
             if (n.type === 'error') typeColor = 'text-red-600';
 
             return `
-                <tr>
+                <tr onclick="shownotifmessage(${n.id})" class="cursor-pointer hover:bg-gray-400 transition">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${n.sender_username}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${typeColor}">${n.type.toUpperCase()}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 max-w-lg overflow-hidden text-ellipsis">${n.message}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 max-w-lg overflow-hidden text-ellipsis">${n.title}</td>
                 </tr>
             `;
         }).join('');

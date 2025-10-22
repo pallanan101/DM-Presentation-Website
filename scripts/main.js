@@ -287,7 +287,7 @@ function renderNotificationList() {
         item.innerHTML = `
                     <i class="fas ${icon} ${color} mt-0.5 w-5 min-w-[20px]"></i>
                     <div class="flex-grow">
-                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.message}</p>
+                        <p class="${itemTextColor} text-sm ${isUnread ? 'font-semibold' : ''}">${n.title}</p>
                         <p class="text-gray-400 text-xs mt-1">From ${sender} • ${n.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                 `;
